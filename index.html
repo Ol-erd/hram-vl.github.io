@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Записки</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Old+Standard+TT:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f6f1e7; --card: #fffdf8; --text: #2a221a; --muted: #7b6d5c; --line: #e3d7c3;
+    --gold: #9a6b1f; --gold-bg: #f3e5c8; --red: #8e2a1c; --on-red: #fff; --ok: #2f6b3a; --err: #a3291f;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #1b1713; --card: #25201a; --text: #f1e8da; --muted: #b2a38f; --line: #3c3329;
+      --gold: #e0b766; --gold-bg: #3a2e1b; --red: #c25a43; --on-red: #fff; --ok: #84c590; --err: #f08b80;
+    }
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body { margin: 0; background: var(--bg); color: var(--text);
+    font: 16px/1.5 -apple-system, "Segoe UI", Roboto, Arial, sans-serif; }
+  .wrap { max-width: 480px; margin: 0 auto; padding: 22px 16px 48px; }
+  header { text-align: center; margin-bottom: 18px; }
+  .cross { font-size: 28px; color: var(--gold); line-height: 1; }
+  h1 { font: 700 23px/1.25 "Old Standard TT", Georgia, serif; margin: 8px 0 4px; }
+  header p { margin: 0; color: var(--muted); font-size: 15px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 16px; margin-bottom: 12px; }
+  .lbl { font-size: 13px; color: var(--muted); margin: 0 0 10px; letter-spacing: .02em; }
+  .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+  .chip { min-height: 48px; padding: 8px 10px; border-radius: 10px; border: 1px solid var(--line);
+    background: transparent; color: var(--text); font: inherit; font-size: 16px; cursor: pointer; text-align: center; }
+  .chip small { display: block; font-size: 12px; color: var(--muted); line-height: 1.3; }
+  .chip.on { background: var(--gold-bg); border-color: var(--gold); }
+  .dates { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+  .date { padding: 6px 2px 7px; min-height: 64px; }
+  .date b { display: block; font-size: 20px; font-weight: 600; line-height: 1.2; }
+  .date small { font-size: 12px; }
+  .date.hol { border-color: var(--gold); border-style: dashed; }
+  .date.hol.on { border-style: solid; }
+  .dnote { font-size: 13px; color: var(--muted); margin: 10px 0 0; min-height: 1.3em; }
+  .row { display: flex; gap: 8px; margin-bottom: 8px; }
+  .row input { flex: 1; min-width: 0; height: 48px; border: 1px solid var(--line); border-radius: 10px; padding: 0 12px;
+    font: inherit; font-size: 17px; background: transparent; color: var(--text); }
+  .row input:focus { outline: 2px solid var(--gold); outline-offset: -1px; }
+  .x { flex: 0 0 48px; height: 48px; border: 1px solid var(--line); border-radius: 10px; background: transparent;
+    color: var(--muted); font-size: 22px; cursor: pointer; }
+  .link { background: none; border: none; color: var(--gold); font: inherit; font-size: 16px; padding: 8px 0; cursor: pointer; }
+  .hint { font-size: 13px; color: var(--muted); margin: 6px 0 0; }
+  .sum { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 4px; }
+  .sum b { font-size: 26px; font-weight: 600; white-space: nowrap; }
+  .soft { font-size: 14px; color: var(--muted); margin: 0 0 14px; }
+  .pays { display: grid; gap: 8px; }
+  .pays .chip { text-align: left; padding: 10px 14px; display: flex; justify-content: space-between; align-items: center; }
+  .pays .chip small { display: inline; }
+  .main { display: flex; align-items: center; justify-content: center; width: 100%; height: 54px; border: none; border-radius: 12px;
+    background: var(--red); color: var(--on-red); font: inherit; font-size: 18px; cursor: pointer; text-decoration: none; }
+  .main:disabled { opacity: .6; }
+  .ghost { background: transparent; color: var(--text); border: 1px solid var(--line); }
+  .err { color: var(--err); font-size: 15px; margin: 10px 0 0; min-height: 1.2em; text-align: center; }
+  .done { text-align: center; }
+  .done .big { font-size: 44px; color: var(--ok); line-height: 1; margin-top: 6px; }
+  .done h2 { font: 700 22px/1.3 "Old Standard TT", Georgia, serif; margin: 8px 0 6px; }
+  .done p { margin: 0 0 12px; }
+  .copy { display: flex; gap: 8px; margin: 10px 0; }
+  .copy input { flex: 1; min-width: 0; height: 48px; border: 1px solid var(--line); border-radius: 10px; padding: 0 12px;
+    font: 600 18px/1 ui-monospace, Menlo, monospace; letter-spacing: .04em; background: var(--gold-bg); color: var(--text); }
+  .copy button { flex: 0 0 auto; padding: 0 14px; border: 1px solid var(--line); border-radius: 10px; background: var(--card);
+    color: var(--text); font: inherit; cursor: pointer; }
+  .closed { text-align: center; color: var(--muted); }
+  .hidden { display: none !important; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p id="loading" style="text-align:center;color:var(--muted);margin-top:40vh" class="hidden">Загрузка…</p>
+  <header>
+    <div class="cross">☦</div>
+    <h1 id="temple">Храм</h1>
+    <p>Подать записку</p>
+  </header>
+
+  <div id="form">
+    <div class="card">
+      <p class="lbl">Треба</p>
+      <div class="grid" id="trebas"></div>
+    </div>
+
+    <div class="card">
+      <p class="lbl">О ком</p>
+      <div class="grid" id="kinds"></div>
+    </div>
+
+    <div class="card">
+      <p class="lbl">Дата</p>
+      <div class="dates" id="dates"></div>
+      <button class="link hidden" id="more">Показать ещё даты</button>
+      <p class="dnote" id="dnote"></p>
+    </div>
+
+    <div class="card">
+      <p class="lbl">Имена — в родительном падеже, по одному в поле</p>
+      <div id="names"></div>
+      <button class="link" id="add">+ Добавить имя</button>
+      <p class="hint">Крещёные имена, без фамилий и отчеств. Можно с пометкой: мл. (младенец), отр. (отрок), нпк. (новопреставленный), бол. (болящий).</p>
+    </div>
+
+    <div class="card">
+      <p class="lbl">Пожертвование на храм</p>
+      <div class="sum"><span id="calc">Обычно жертвуют</span><b id="sum">0 грн</b></div>
+      <p class="soft">Записка будет прочитана независимо от пожертвования. Если есть возможность, поддержите храм.</p>
+      <div class="pays" id="pays">
+        <button class="chip" data-pay="online">Онлайн <small>банка или карта</small></button>
+        <button class="chip" data-pay="cash">В церковной лавке <small>наличными</small></button>
+        <button class="chip" data-pay="none">Без пожертвования <small></small></button>
+      </div>
+    </div>
+
+    <button class="main" id="go">Подать записку</button>
+    <p class="err" id="err" role="alert"></p>
+  </div>
+
+  <div id="done" class="card done hidden">
+    <div class="big">✓</div>
+    <h2>Записка принята</h2>
+    <p id="doneText"></p>
+    <div id="payBox"></div>
+    <button class="main ghost" id="again" style="margin-top:14px">Подать ещё записку</button>
+  </div>
+  <p style="text-align:center;margin:28px 0 0"><a id="adminLink" target="_top" style="color:var(--muted);font-size:13px">Для духовенства</a></p>
+</div>
+
+<script>
+/* Адрес Google Apps Script (…/exec). Если пересоздадите развертывание — замените здесь и в admin.html */
+var API_URL = 'https://script.google.com/macros/s/AKfycbyRUGePwuODynhExrUdpzUqdkFJGM4NeETsLgfwBBg0WEOI7vUHDqFBtFyBiPCSMsFpow/exec';
+window.PUBLIC_URL = location.href.replace(/[^\/]*([?#].*)?$/, '');
+window.google = { script: { run: (function mk(ok, fail) {
+  return new Proxy({}, { get: function (_, fn) {
+    if (fn === 'withSuccessHandler') return function (f) { return mk(f, fail); };
+    if (fn === 'withFailureHandler') return function (f) { return mk(ok, f); };
+    return function () {
+      var args = [].slice.call(arguments);
+      fetch(API_URL, { method: 'POST', redirect: 'follow', credentials: 'omit',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ fn: fn, args: args }) })
+        .then(function (r) { return r.json(); })
+        .then(function (x) { if (ok) ok(x); }, function (e) { if (fail) fail(e); });
+    };
+  } });
+})() } };
+</script>
+<script>
+var CFG = /*CFG*/null;
+var S, $ = function (id) { return document.getElementById(id); };
+
+function init() {
+  $('temple').textContent = CFG.temple;
+  document.title = CFG.temple + ' — записки';
+  if (CFG.adminUrl) $('adminLink').href = CFG.adminUrl; else $('adminLink').classList.add('hidden');
+  $('add').onclick = function () { addName('', true); };
+  $('more').onclick = function () { S.showAll = true; renderDates(); };
+  [].forEach.call(document.querySelectorAll('#pays .chip'), function (b) {
+    b.onclick = function () { S.pay = b.getAttribute('data-pay'); renderPays(); clearErr(); };
+  });
+  $('go').onclick = submit;
+  $('again').onclick = reset;
+  if (!CFG.bankUrl && !CFG.card) $('pays').children[0].classList.add('hidden');
+  reset();
+}
+
+function reset() {
+  var keepT = S ? S.t : 0;
+  S = { t: keepT, kind: '', date: '', pay: '', showAll: false, busy: false };
+  $('names').innerHTML = '';
+  addName(); addName(); addName();
+  $('form').classList.remove('hidden');
+  $('done').classList.add('hidden');
+  clearErr();
+  render();
+  window.scrollTo(0, 0);
+}
+
+function treba() { return CFG.trebas[S.t]; }
+
+function render() {
+  var box = $('trebas'); box.innerHTML = '';
+  CFG.trebas.forEach(function (t, i) {
+    var b = el('button', 'chip' + (i === S.t ? ' on' : ''));
+    b.textContent = t.name;
+    b.onclick = function () { S.t = i; S.date = ''; S.showAll = false; render(); clearErr(); };
+    box.appendChild(b);
+  });
+  var kinds = treba().kinds;
+  if (kinds.indexOf(S.kind) < 0) S.kind = kinds.length === 1 ? kinds[0] : '';
+  var kb = $('kinds'); kb.innerHTML = '';
+  kinds.forEach(function (k) {
+    var b = el('button', 'chip' + (k === S.kind ? ' on' : ''));
+    b.textContent = about(k);
+    b.onclick = function () { S.kind = k; render(); clearErr(); };
+    kb.appendChild(b);
+  });
+  renderDates(); renderPays(); calc();
+}
+
+function renderDates() {
+  var ds = treba().dates, box = $('dates'); box.innerHTML = '';
+  if (!ds.length) {
+    box.innerHTML = '<p class="hint" style="grid-column:1/-1">Ближайших служб нет.</p>';
+    $('more').classList.add('hidden'); $('dnote').textContent = ''; return;
+  }
+  var shown = S.showAll ? ds : ds.slice(0, 8);
+  if (!S.date || !ds.some(function (d) { return d.key === S.date; })) S.date = ds[0].key;
+  shown.forEach(function (d) {
+    var b = el('button', 'chip date' + (d.title ? ' hol' : '') + (d.key === S.date ? ' on' : ''));
+    b.innerHTML = '<small>' + (d.today ? 'сегодня' : esc(d.dow)) + '</small><b>' + d.day + '</b><small>' + esc(d.mon) + '</small>';
+    b.onclick = function () { S.date = d.key; renderDates(); clearErr(); };
+    box.appendChild(b);
+  });
+  $('more').classList.toggle('hidden', S.showAll || ds.length <= 8);
+  var cur = ds.filter(function (d) { return d.key === S.date; })[0];
+  var note = cur.long.charAt(0).toUpperCase() + cur.long.slice(1);
+  if (cur.title) note += ' · ' + cur.title;
+  if (cur.today) note += ' · записки принимаются до ' + cur.today;
+  $('dnote').textContent = note;
+}
+
+function renderPays() {
+  [].forEach.call(document.querySelectorAll('#pays .chip'), function (b) {
+    b.classList.toggle('on', b.getAttribute('data-pay') === S.pay);
+  });
+}
+
+function addName(v, focus) {
+  var row = el('div', 'row');
+  var i = el('input'); i.type = 'text'; i.maxLength = 60; i.value = v || '';
+  i.autocapitalize = 'words'; i.autocomplete = 'off'; i.spellcheck = false;
+  i.placeholder = ['Иоанна', 'Марии', 'мл. Николая', 'Елены', 'Петра'][$('names').children.length % 5];
+  i.oninput = function () { calc(); clearErr(); };
+  i.onkeydown = function (e) { if (e.key === 'Enter') { e.preventDefault(); nextField(row); } };
+  var x = el('button', 'x'); x.textContent = '×'; x.setAttribute('aria-label', 'Убрать имя'); x.type = 'button';
+  x.onclick = function () {
+    if ($('names').children.length > 1) row.parentNode.removeChild(row); else i.value = '';
+    calc();
+  };
+  row.appendChild(i); row.appendChild(x);
+  $('names').appendChild(row);
+  if (focus) i.focus();
+}
+
+function nextField(row) {
+  var n = row.nextElementSibling;
+  if (n) n.querySelector('input').focus(); else addName('', true);
+}
+
+function names() {
+  return [].map.call(document.querySelectorAll('#names input'), function (i) { return i.value.trim(); })
+    .filter(Boolean);
+}
+
+function sumFor(p, n) {
+  if (!n) return 0;
+  if (p.per === 'name') return n * p.price;
+  return (p.max ? Math.ceil(n / p.max) : 1) * p.price;
+}
+
+function priceText(p, n) {
+  if (p.per === 'name') return n
+    ? 'Обычно жертвуют за ' + n + ' ' + plural(n, 'имя', 'имени', 'имён') + ' (по ' + p.price + ' грн)'
+    : 'Обычно жертвуют по ' + p.price + ' грн за имя';
+  if (p.max) {
+    var k = Math.max(1, Math.ceil(n / p.max));
+    return k > 1
+      ? 'Обычно жертвуют за ' + k + ' ' + plural(k, 'записку', 'записки', 'записок') + ' (по ' + p.price + ' грн, до ' + p.max + ' имён в каждой)'
+      : 'Обычно жертвуют ' + p.price + ' грн за записку (до ' + p.max + ' имён)';
+  }
+  return 'Обычно жертвуют ' + p.price + ' грн за записку';
+}
+
+function calc() {
+  var n = names().length, p = treba().price;
+  $('calc').textContent = priceText(p, n);
+  $('sum').textContent = (n ? sumFor(p, n) : (p.per === 'name' ? 0 : p.price)) + ' грн';
+}
+
+function submit() {
+  if (S.busy) return;
+  if (!S.kind) return err('Выберите: о здравии или об упокоении');
+  if (!S.date) return err('Выберите дату');
+  if (!names().length) return err('Впишите хотя бы одно имя');
+  if (!S.pay) return err('Выберите вариант пожертвования');
+  var payload = { treba: treba().id, kind: S.kind, date: S.date, names: names(), pay: S.pay };
+  S.busy = true; $('go').disabled = true; $('go').textContent = 'Отправляем…';
+  var done = function (r) {
+    S.busy = false; $('go').disabled = false; $('go').textContent = 'Подать записку';
+    if (!r || !r.ok) return err((r && r.error) || 'Не получилось отправить. Попробуйте ещё раз.');
+    showDone(r, payload);
+  };
+  google.script.run.withSuccessHandler(done)
+    .withFailureHandler(function () { done({ ok: false, error: 'Нет связи. Попробуйте ещё раз.' }); })
+    .submitNote(payload);
+}
+
+function showDone(r, p) {
+  $('form').classList.add('hidden'); $('done').classList.remove('hidden');
+  $('doneText').innerHTML = esc(treba().name) + ' · ' + esc(about(p.kind).toLowerCase()) + '<br>' +
+    esc(r.dateLabel) + '<br>' + r.count + ' ' + plural(r.count, 'имя', 'имени', 'имён');
+  var box = $('payBox'), h = '';
+  if (p.pay === 'online') {
+    h += '<p>Пожертвование: <b>' + r.sum + ' грн</b></p>';
+    if (CFG.bankUrl) h += '<a class="main" target="_blank" rel="noopener" href="' + esc(CFG.bankUrl) + '">Открыть банку</a>';
+    if (CFG.card) {
+      h += '<p class="soft" style="margin:14px 0 0">' + (CFG.bankUrl ? 'Или переводом на карту' : 'Перевод на карту') +
+        (CFG.cardName ? ' (' + esc(CFG.cardName) + ')' : '') + ':</p>' +
+        '<div class="copy"><input readonly id="cardNum" value="' + esc(CFG.card) + '"><button id="copyBtn">Копировать</button></div>';
+    }
+    h += '<p class="soft">В комментарии можно указать: записка ' + esc(r.id) + '</p>';
+  } else if (p.pay === 'cash') {
+    h += '<p>Пожертвование можно оставить в церковной лавке.</p>';
+  } else {
+    h += '<p>Имена будут помянуты за богослужением.</p>';
+  }
+  h += '<p style="font:700 20px/1.3 \'Old Standard TT\',Georgia,serif;margin-top:14px">Спаси Господи!</p>';
+  box.innerHTML = h;
+  if ($('copyBtn')) $('copyBtn').onclick = copyCard;
+  window.scrollTo(0, 0);
+}
+
+function copyCard() {
+  var i = $('cardNum'), b = $('copyBtn');
+  i.focus(); i.select(); i.setSelectionRange(0, 99);
+  var ok = function () { b.textContent = 'Скопировано'; };
+  try {
+    if (navigator.clipboard) navigator.clipboard.writeText(i.value.replace(/\s/g, '')).then(ok, function () { if (document.execCommand('copy')) ok(); });
+    else if (document.execCommand('copy')) ok();
+  } catch (e) {}
+}
+
+function about(k) { return (/^[аеиоуэ]/i.test(k) ? 'Об ' : 'О ') + k; }
+function err(m) { $('err').textContent = m; }
+function clearErr() { $('err').textContent = ''; }
+function el(tag, cls) { var e = document.createElement(tag); if (cls) e.className = cls; return e; }
+function esc(s) { return String(s).replace(/[&<>"']/g, function (c) {
+  return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+function plural(n, a, b, c) { var m = n % 10, h = n % 100;
+  return m === 1 && h !== 11 ? a : m >= 2 && m <= 4 && (h < 12 || h > 14) ? b : c; }
+
+function boot() {
+  if (CFG) return init();
+  $('loading').classList.remove('hidden'); $('form').classList.add('hidden');
+  google.script.run.withSuccessHandler(function (r) {
+    if (!r || !r.ok) { $('loading').innerHTML = 'Не удалось загрузить. <a href="" style="color:var(--gold)">Обновить</a>'; return; }
+    CFG = r.cfg; CFG.adminUrl = 'admin.html';
+    $('loading').classList.add('hidden'); $('form').classList.remove('hidden');
+    init();
+  }).withFailureHandler(function () {
+    $('loading').innerHTML = 'Нет связи. <a href="" style="color:var(--gold)">Обновить</a>';
+  }).publicConfig();
+}
+
+boot();
+</script>
+</body>
+</html>

@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Записки — для духовенства</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Old+Standard+TT:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f6f1e7; --card: #fffdf8; --text: #2a221a; --muted: #7b6d5c; --line: #e3d7c3;
+    --gold: #9a6b1f; --gold-bg: #f3e5c8; --red: #8e2a1c; --on-red: #fff; --ok: #2f6b3a; --err: #a3291f;
+    --paper: #fffaf0; --ink: #1f1a14; --cin: #a32a1b;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #1b1713; --card: #25201a; --text: #f1e8da; --muted: #b2a38f; --line: #3c3329;
+      --gold: #e0b766; --gold-bg: #3a2e1b; --red: #c25a43; --on-red: #fff; --ok: #84c590; --err: #f08b80;
+      --paper: #221d17; --ink: #f4ebdc; --cin: #e2705a;
+    }
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 16px/1.5 -apple-system, "Segoe UI", Roboto, Arial, sans-serif; }
+  .wrap { max-width: 560px; margin: 0 auto; padding: 14px 14px 90px; }
+  h1 { font: 700 21px/1.25 "Old Standard TT", Georgia, serif; margin: 4px 0 2px; }
+  .sub { color: var(--muted); font-size: 14px; margin: 0 0 14px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 14px; margin-bottom: 12px; }
+  .lbl { font-size: 13px; color: var(--muted); margin: 0 0 8px; }
+  button { font: inherit; color: inherit; }
+  .btn { min-height: 46px; padding: 8px 14px; border-radius: 10px; border: 1px solid var(--line); background: var(--card); cursor: pointer; }
+  .btn.on { background: var(--gold-bg); border-color: var(--gold); }
+  .main { width: 100%; min-height: 52px; border: none; border-radius: 12px; background: var(--red); color: var(--on-red); font-size: 17px; cursor: pointer; }
+  .main:disabled { opacity: .6; }
+  .err { color: var(--err); font-size: 14px; min-height: 1.2em; margin: 8px 0 0; text-align: center; }
+  .okmsg { color: var(--ok); font-size: 14px; min-height: 1.2em; margin: 8px 0 0; text-align: center; }
+  input[type=text], input[type=number], input[type=time], input[type=password], input[type=tel] {
+    height: 46px; border: 1px solid var(--line); border-radius: 10px; padding: 0 12px; font: inherit; font-size: 16px;
+    background: transparent; color: var(--text); width: 100%; min-width: 0; }
+  input:focus { outline: 2px solid var(--gold); outline-offset: -1px; }
+
+  .tabs { position: fixed; left: 0; right: 0; bottom: 0; display: flex; background: var(--card); border-top: 1px solid var(--line);
+    padding: 6px 6px calc(6px + env(safe-area-inset-bottom)); z-index: 5; }
+  .tabs button { flex: 1; background: none; border: none; padding: 8px 4px; font-size: 14px; color: var(--muted); cursor: pointer; border-radius: 10px; }
+  .tabs button b { display: block; font-size: 20px; line-height: 1.1; font-weight: 400; }
+  .tabs button.on { color: var(--text); background: var(--gold-bg); }
+
+  .mhead { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+  .mhead b { font: 700 19px/1.2 "Old Standard TT", Georgia, serif; }
+  .mhead button { width: 46px; height: 46px; border-radius: 10px; border: 1px solid var(--line); background: var(--card); font-size: 20px; cursor: pointer; }
+  .cal { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; }
+  .cal .h { text-align: center; font-size: 12px; color: var(--muted); padding: 2px 0; }
+  .cal .h.we { color: var(--cin); }
+  .day { min-height: 56px; border: 1px solid var(--line); border-radius: 9px; background: var(--card); padding: 3px 2px; cursor: pointer;
+    display: flex; flex-direction: column; align-items: center; justify-content: flex-start; gap: 2px; }
+  .day .n { font-size: 16px; font-weight: 600; line-height: 1.2; }
+  .day.we .n { color: var(--cin); }
+  .day.today { outline: 2px solid var(--gold); outline-offset: -2px; }
+  .day.sel { background: var(--gold-bg); border-color: var(--gold); }
+  .day.past { opacity: .55; }
+  .day.blank { visibility: hidden; }
+  .badge { font-size: 12px; line-height: 1; padding: 3px 6px; border-radius: 99px; background: var(--red); color: var(--on-red); }
+  .marks { display: flex; gap: 2px; justify-content: center; }
+  .mk { font-size: 11px; line-height: 1; padding: 2px 3px; border-radius: 4px; background: var(--gold); color: var(--card); font-weight: 700; }
+  .day.chg { border-style: dashed; border-color: var(--gold); }
+  .legend { font-size: 13px; color: var(--muted); margin: 10px 0 0; }
+
+  .groups { display: grid; gap: 8px; }
+  .grp { display: flex; justify-content: space-between; align-items: center; text-align: left; width: 100%; padding: 14px; border-radius: 12px;
+    border: 1px solid var(--line); background: var(--card); cursor: pointer; font-size: 17px; }
+  .grp small { display: block; color: var(--muted); font-size: 14px; }
+  .grp .cnt { font-size: 22px; font-weight: 600; min-width: 40px; text-align: right; }
+  .grp.empty { opacity: .45; cursor: default; }
+
+  .svcs { display: grid; gap: 8px; }
+  .tog { display: flex; justify-content: space-between; align-items: center; width: 100%; min-height: 54px; padding: 8px 14px;
+    border-radius: 12px; border: 1px solid var(--line); background: var(--card); cursor: pointer; font-size: 17px; }
+  .tog .sw { width: 50px; height: 30px; border-radius: 99px; background: var(--line); position: relative; flex: 0 0 auto; transition: background .15s; }
+  .tog .sw::after { content: ''; position: absolute; top: 3px; left: 3px; width: 24px; height: 24px; border-radius: 50%; background: #fff; transition: left .15s; }
+  .tog.on { border-color: var(--gold); }
+  .tog.on .sw { background: var(--gold); }
+  .tog.on .sw::after { left: 23px; }
+
+  .wk { display: grid; grid-template-columns: 76px repeat(7, minmax(0, 1fr)); gap: 4px; align-items: center; font-size: 13px; }
+  .wk .c { text-align: center; color: var(--muted); }
+  .wk button { height: 38px; border-radius: 8px; border: 1px solid var(--line); background: var(--card); cursor: pointer; font-size: 13px; padding: 0; }
+  .wk button.on { background: var(--gold); border-color: var(--gold); color: var(--card); font-weight: 700; }
+  .tt { display: grid; grid-template-columns: 76px repeat(3, minmax(0, 1fr)); gap: 6px; align-items: center; font-size: 13px; }
+  .tt input { height: 42px; padding: 0 4px; font-size: 16px; text-align: center; }
+  .f2 { display: grid; grid-template-columns: 1fr 110px; gap: 8px; align-items: center; margin-bottom: 8px; }
+  .fld { margin-bottom: 10px; }
+  .pr { padding: 10px 0; border-bottom: 1px solid var(--line); } .pr:last-child { border-bottom: none; }
+  .pr b { display: block; font-weight: 600; margin-bottom: 6px; }
+  .prr { display: flex; gap: 8px; align-items: center; font-size: 15px; color: var(--muted); }
+  .prr + .prr { margin-top: 6px; }
+  .prr input { width: 84px; flex: 0 0 84px; text-align: center; }
+  select { height: 46px; border: 1px solid var(--line); border-radius: 10px; padding: 0 10px; font: inherit; font-size: 16px; background: var(--card); color: var(--text); flex: 1; }
+  .fld label { display: block; font-size: 13px; color: var(--muted); margin-bottom: 4px; }
+  #qr img { width: 220px; height: 220px; image-rendering: pixelated; background: #fff; padding: 8px; border-radius: 8px; }
+
+  /* Записка */
+  .note { background: var(--paper); color: var(--ink); border: 1px solid var(--line); border-radius: 6px; padding: 22px 20px 30px; text-align: center; }
+  .note .cr { font-size: 34px; line-height: 1; color: var(--cin); }
+  .note .kind { font: 700 30px/1.2 "Old Standard TT", Georgia, serif; color: var(--cin); letter-spacing: .06em; text-transform: uppercase; margin: 8px 0 2px; }
+  .note .meta { font-size: 14px; color: var(--muted); margin-bottom: 16px; }
+  .note ol { list-style: none; padding: 0; margin: 0; font-family: "Old Standard TT", Georgia, serif; }
+  .note li { padding: 3px 0; line-height: 1.3; }
+  .ntools { display: flex; gap: 8px; margin-bottom: 10px; }
+  .ntools .btn { flex: 1; }
+  .back { background: none; border: none; color: var(--gold); padding: 8px 0; font-size: 16px; cursor: pointer; margin-bottom: 4px; }
+  .hidden { display: none !important; }
+  @media print {
+    body { background: #fff; } .tabs, .ntools, .back, .noprint { display: none !important; }
+    .wrap { padding: 0; max-width: none; } .note { border: none; background: #fff; color: #000; }
+    .note .cr, .note .kind { color: #a32a1b; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- Вход -->
+  <div id="login" class="hidden" style="max-width:340px;margin:40px auto 0;text-align:center">
+    <div style="font-size:30px;color:var(--gold)">☦</div>
+    <h1 id="loginTitle">Вход для духовенства</h1>
+    <p class="sub" id="loginSub">Введите PIN-код</p>
+    <input type="password" inputmode="numeric" id="pin" maxlength="8" autocomplete="current-password" style="text-align:center;font-size:24px;letter-spacing:.3em">
+    <input type="password" inputmode="numeric" id="pin2" maxlength="8" class="hidden" placeholder="ещё раз" style="text-align:center;font-size:24px;letter-spacing:.3em;margin-top:8px">
+    <button class="main" id="loginBtn" style="margin-top:12px">Войти</button>
+    <p class="err" id="loginErr"></p>
+  </div>
+
+  <div id="app" class="hidden">
+    <!-- Записки -->
+    <section id="tabNotes">
+      <div id="notesCal">
+        <h1>Записки</h1>
+        <p class="sub">Выберите дату — цифра показывает, сколько имён подано</p>
+        <div class="card"><div class="mhead"><button data-m="-1" aria-label="Предыдущий месяц">‹</button><b class="mt"></b><button data-m="1" aria-label="Следующий месяц">›</button></div>
+          <div class="cal" id="calNotes"></div></div>
+        <div id="dayList"></div>
+      </div>
+      <div id="noteView" class="hidden">
+        <button class="back" id="noteBack">‹ Назад</button>
+        <div class="ntools">
+          <button class="btn" id="fMinus" aria-label="Мельче">A−</button>
+          <button class="btn" id="fPlus" aria-label="Крупнее">A+</button>
+          <button class="btn" id="printBtn">Печать</button>
+        </div>
+        <div class="note" id="note"></div>
+      </div>
+    </section>
+
+    <!-- Расписание -->
+    <section id="tabSched" class="hidden">
+      <h1>Расписание</h1>
+      <p class="sub">Нажмите на день, чтобы поставить или убрать службу</p>
+      <div class="card"><div class="mhead"><button data-m="-1" aria-label="Предыдущий месяц">‹</button><b class="mt"></b><button data-m="1" aria-label="Следующий месяц">›</button></div>
+        <div class="cal" id="calSched"></div>
+        <p class="legend"><span class="mk" style="display:inline-block">Л</span> литургия · <span class="mk" style="display:inline-block">М</span> молебен · <span class="mk" style="display:inline-block">П</span> панихида · пунктир — изменено вручную</p>
+      </div>
+      <div class="card hidden" id="dayEdit"></div>
+    </section>
+
+    <!-- Настройки -->
+    <section id="tabSet" class="hidden">
+      <h1>Настройки</h1>
+      <p class="sub">Изменения сразу видны прихожанам</p>
+      <div class="card">
+        <div class="fld"><label>Название храма</label><input type="text" id="sTemple" maxlength="120"></div>
+      </div>
+      <div class="card">
+        <p class="lbl">Рекомендуемое пожертвование</p>
+        <div id="sPrices"></div>
+      </div>
+      <div class="card">
+        <p class="lbl">Обычное расписание по дням недели</p>
+        <div class="wk" id="sWeek"></div>
+        <p class="legend">Праздники и исключения ставятся во вкладке «Расписание».</p>
+      </div>
+      <div class="card">
+        <p class="lbl">Записки на сегодня принимаются до</p>
+        <div class="tt" id="sCut"></div>
+        <div class="f2" style="margin-top:12px"><span>Показывать дат вперёд, дней</span><input type="number" id="sAhead" min="1" max="120"></div>
+      </div>
+      <div class="card">
+        <p class="lbl">Онлайн-пожертвование</p>
+        <div class="fld"><label>Ссылка на банку (Monobank и т. п.)</label><input type="text" id="sBank" placeholder="https://send.monobank.ua/jar/…" inputmode="url"></div>
+        <div class="fld"><label>Номер карты</label><input type="text" id="sCard" placeholder="5375 4141 0000 0000" inputmode="numeric"></div>
+        <div class="fld"><label>Получатель (как подписать карту)</label><input type="text" id="sCardName" placeholder="Приход храма …"></div>
+        <p class="legend">Если оба поля пустые, вариант «Онлайн» прихожанам не показывается.</p>
+      </div>
+      <div class="card">
+        <div class="fld"><label>Новый PIN (если нужно сменить)</label><input type="password" inputmode="numeric" id="sPin" maxlength="8" autocomplete="new-password"></div>
+      </div>
+      <button class="main" id="saveSet">Сохранить настройки</button>
+      <p class="err" id="setErr"></p><p class="okmsg" id="setOk"></p>
+      <div class="card" style="text-align:center;margin-top:14px">
+        <p class="lbl">Ссылка для прихожан</p>
+        <p style="word-break:break-all;font-size:14px;margin:0 0 10px"><a id="pubLink" target="_blank" style="color:var(--gold)"></a></p>
+        <div id="qr"></div>
+        <p class="legend">QR-код можно сохранить долгим нажатием и распечатать.</p>
+      </div>
+    </section>
+  </div>
+</div>
+
+<nav class="tabs hidden" id="tabs">
+  <button data-tab="tabNotes" class="on"><b>☰</b>Записки</button>
+  <button data-tab="tabSched"><b>▦</b>Расписание</button>
+  <button data-tab="tabSet"><b>⚙</b>Настройки</button>
+</nav>
+
+<script>
+/* Адрес Google Apps Script (…/exec). Если пересоздадите развертывание — замените здесь и в admin.html */
+var API_URL = 'https://script.google.com/macros/s/AKfycbyRUGePwuODynhExrUdpzUqdkFJGM4NeETsLgfwBBg0WEOI7vUHDqFBtFyBiPCSMsFpow/exec';
+window.PUBLIC_URL = location.href.replace(/[^\/]*([?#].*)?$/, '');
+window.google = { script: { run: (function mk(ok, fail) {
+  return new Proxy({}, { get: function (_, fn) {
+    if (fn === 'withSuccessHandler') return function (f) { return mk(f, fail); };
+    if (fn === 'withFailureHandler') return function (f) { return mk(ok, f); };
+    return function () {
+      var args = [].slice.call(arguments);
+      fetch(API_URL, { method: 'POST', redirect: 'follow', credentials: 'omit',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ fn: fn, args: args }) })
+        .then(function (r) { return r.json(); })
+        .then(function (x) { if (ok) ok(x); }, function (e) { if (fail) fail(e); });
+    };
+  } });
+})() } };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+<script>
+var $ = function (id) { return document.getElementById(id); };
+var MON = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'];
+var WD = ['пн', 'вт', 'ср', 'чт', 'пт', 'сб', 'вс'];
+var SH = { lit: 'Л', mol: 'М', pan: 'П' };
+var A = { pin: '', today: '', ym: '', month: {}, sel: '', settings: null, services: [], trebas: [], tab: 'tabNotes', font: 28 };
+
+/* ── связь с сервером ── */
+function call(fn, args, ok) {
+  var r = google.script.run.withSuccessHandler(function (res) {
+    if (res && res.relogin) { forget(); showLogin(false, 'Войдите снова'); return; }
+    ok(res);
+  }).withFailureHandler(function () { ok({ ok: false, error: 'Нет связи. Попробуйте ещё раз.' }); });
+  r[fn].apply(r, args);
+}
+function remember(p) { try { localStorage.setItem('zpin', p); } catch (e) {} }
+function forget() { try { localStorage.removeItem('zpin'); } catch (e) {} A.pin = ''; }
+function stored() { try { return localStorage.getItem('zpin') || ''; } catch (e) { return ''; } }
+try { A.font = Number(localStorage.getItem('zfont')) || 28; } catch (e) {}
+
+/* ── вход ── */
+var firstRun = false;
+function showLogin(isFirst, msg) {
+  firstRun = !!isFirst;
+  $('app').classList.add('hidden'); $('tabs').classList.add('hidden'); $('login').classList.remove('hidden');
+  $('loginTitle').textContent = isFirst ? 'Первый вход' : 'Вход для духовенства';
+  $('loginSub').textContent = isFirst ? 'Придумайте PIN-код (4–8 цифр) и сообщите его батюшкам и пономарям' : 'Введите PIN-код';
+  $('pin2').classList.toggle('hidden', !isFirst);
+  $('loginBtn').textContent = isFirst ? 'Сохранить PIN' : 'Войти';
+  $('loginErr').textContent = msg || '';
+  $('pin').value = ''; $('pin2').value = ''; $('pin').focus();
+}
+function doLogin() {
+  var p = $('pin').value.trim();
+  if (!/^\d{4,8}$/.test(p)) { $('loginErr').textContent = 'PIN — от 4 до 8 цифр'; return; }
+  if (firstRun && p !== $('pin2').value.trim()) { $('loginErr').textContent = 'PIN-коды не совпадают'; return; }
+  $('loginBtn').disabled = true;
+  call(firstRun ? 'clergySetPin' : 'clergyLogin', [p], function (r) {
+    $('loginBtn').disabled = false;
+    if (!r.ok) { $('loginErr').textContent = r.error || 'Ошибка'; return; }
+    A.pin = p; remember(p); start(r);
+  });
+}
+$('loginBtn').onclick = doLogin;
+$('pin').onkeydown = $('pin2').onkeydown = function (e) { if (e.key === 'Enter') doLogin(); };
+
+function start(r) {
+  A.settings = r.settings; A.services = r.services; A.trebas = r.trebas; A.today = r.today; A.url = window.PUBLIC_URL || r.url;
+  A.ym = r.today.slice(0, 7); A.sel = r.today;
+  $('login').classList.add('hidden'); $('app').classList.remove('hidden'); $('tabs').classList.remove('hidden');
+  fillSettings(); loadMonth(function () { openDay(A.today); });
+}
+
+/* ── вкладки ── */
+[].forEach.call(document.querySelectorAll('#tabs button'), function (b) {
+  b.onclick = function () { switchTab(b.getAttribute('data-tab')); };
+});
+function switchTab(t) {
+  A.tab = t;
+  ['tabNotes', 'tabSched', 'tabSet'].forEach(function (x) { $(x).classList.toggle('hidden', x !== t); });
+  [].forEach.call(document.querySelectorAll('#tabs button'), function (b) { b.classList.toggle('on', b.getAttribute('data-tab') === t); });
+  if (t === 'tabNotes') { closeNote(); }
+  renderCals();
+  if (t === 'tabSched') renderDayEdit();
+  window.scrollTo(0, 0);
+}
+
+/* ── календарь ── */
+[].forEach.call(document.querySelectorAll('.mhead button'), function (b) {
+  b.onclick = function () {
+    var y = Number(A.ym.slice(0, 4)), m = Number(A.ym.slice(5, 7)) - 1 + Number(b.getAttribute('data-m'));
+    var d = new Date(Date.UTC(y, m, 1));
+    A.ym = d.toISOString().slice(0, 7);
+    loadMonth();
+  };
+});
+function loadMonth(cb) {
+  [].forEach.call(document.querySelectorAll('.mt'), function (e) { e.textContent = monthTitle(A.ym) + '…'; });
+  call('clergyMonth', [A.pin, A.ym], function (r) {
+    if (!r.ok) return;
+    A.month = r.days; renderCals(); if (cb) cb();
+  });
+}
+function monthTitle(ym) { return MON[Number(ym.slice(5, 7)) - 1] + ' ' + ym.slice(0, 4); }
+function renderCals() {
+  [].forEach.call(document.querySelectorAll('.mt'), function (e) { e.textContent = monthTitle(A.ym); });
+  if (A.tab === 'tabNotes') drawCal($('calNotes'), 'notes');
+  if (A.tab === 'tabSched') drawCal($('calSched'), 'sched');
+}
+function drawCal(box, mode) {
+  box.innerHTML = '';
+  WD.forEach(function (w, i) { var h = el('div', 'h' + (i === 6 ? ' we' : '')); h.textContent = w; box.appendChild(h); });
+  var y = Number(A.ym.slice(0, 4)), m = Number(A.ym.slice(5, 7));
+  var first = (new Date(Date.UTC(y, m - 1, 1)).getUTCDay() + 6) % 7;
+  var n = new Date(Date.UTC(y, m, 0)).getUTCDate();
+  for (var i = 0; i < first; i++) box.appendChild(el('div', 'day blank'));
+  for (var d = 1; d <= n; d++) {
+    var key = A.ym + '-' + (d < 10 ? '0' : '') + d, info = A.month[key] || {};
+    var dow = (first + d - 1) % 7;
+    var c = el('button', 'day' + (dow === 6 || info.title ? ' we' : '') + (key === A.today ? ' today' : '') +
+      (key === A.sel ? ' sel' : '') + (key < A.today ? ' past' : '') + (mode === 'sched' && info.changed ? ' chg' : ''));
+    var h = '<span class="n">' + d + '</span>';
+    if (mode === 'notes') { if (info.names) h += '<span class="badge">' + info.names + '</span>'; }
+    else {
+      h += '<span class="marks">';
+      ['lit', 'mol', 'pan'].forEach(function (s) { if (info[s]) h += '<span class="mk">' + SH[s] + '</span>'; });
+      h += '</span>';
+    }
+    c.innerHTML = h;
+    c.title = info.title || '';
+    (function (k) { c.onclick = function () { if (mode === 'notes') openDay(k); else { A.sel = k; renderCals(); renderDayEdit(); } }; })(key);
+    box.appendChild(c);
+  }
+}
+
+/* ── записки на дату ── */
+function openDay(key) {
+  A.sel = key; renderCals();
+  var box = $('dayList');
+  box.innerHTML = '<div class="card"><p class="sub" style="margin:0">Загрузка…</p></div>';
+  call('clergyList', [A.pin, key], function (r) {
+    if (!r.ok) { box.innerHTML = ''; return; }
+    A.list = r;
+    var h = '<div class="card"><h1 style="font-size:19px">' + esc(cap(r.label)) + '</h1>' +
+      (r.title ? '<p class="sub" style="margin:0 0 10px">' + esc(r.title) + '</p>' : '<div style="height:8px"></div>') + '<div class="groups">';
+    var any = false;
+    r.groups.forEach(function (g, i) {
+      if (g.names.length) any = true;
+      h += '<button class="grp' + (g.names.length ? '' : ' empty') + '" data-g="' + i + '"><span>' + esc(g.treba) +
+        '<small>' + esc(about(g.kind).toLowerCase()) + '</small></span><span class="cnt">' + g.names.length + '</span></button>';
+    });
+    h += '</div>' + (any ? '' : '<p class="sub" style="margin:10px 0 0">На этот день записок пока нет.</p>') + '</div>';
+    box.innerHTML = h;
+    [].forEach.call(box.querySelectorAll('.grp'), function (b) {
+      b.onclick = function () { var g = r.groups[Number(b.getAttribute('data-g'))]; if (g.names.length) showNote(g, r); };
+    });
+  });
+}
+function showNote(g, r) {
+  var h = '<div class="cr">☦</div><div class="kind">' + esc(about(g.kind)) + '</div>' +
+    '<div class="meta">' + esc(g.treba) + ' · ' + esc(r.label) + ' · ' + g.names.length + ' ' + plural(g.names.length, 'имя', 'имени', 'имён') + '</div><ol>';
+  g.names.forEach(function (n) { h += '<li>' + esc(n) + '</li>'; });
+  $('note').innerHTML = h + '</ol>';
+  applyFont();
+  $('notesCal').classList.add('hidden'); $('noteView').classList.remove('hidden');
+  $('tabs').classList.add('hidden');
+  window.scrollTo(0, 0);
+}
+function closeNote() { $('noteView').classList.add('hidden'); $('notesCal').classList.remove('hidden'); if (A.pin) $('tabs').classList.remove('hidden'); }
+function applyFont() { $('note').querySelector('ol').style.fontSize = A.font + 'px'; try { localStorage.setItem('zfont', A.font); } catch (e) {} }
+$('noteBack').onclick = closeNote;
+$('fMinus').onclick = function () { A.font = Math.max(18, A.font - 4); applyFont(); };
+$('fPlus').onclick = function () { A.font = Math.min(56, A.font + 4); applyFont(); };
+$('printBtn').onclick = function () { window.print(); };
+
+/* ── расписание: правка дня ── */
+function renderDayEdit() {
+  var box = $('dayEdit'), key = A.sel, info = A.month[key];
+  if (!info || key.slice(0, 7) !== A.ym) { box.classList.add('hidden'); return; }
+  box.classList.remove('hidden');
+  var v = { lit: info.lit, mol: info.mol, pan: info.pan };
+  var h = '<h1 style="font-size:19px">' + esc(cap(longLabel(key))) + '</h1><p class="sub" style="margin:0 0 10px">' +
+    (info.names ? 'Подано имён: ' + info.names : 'Записок пока нет') + '</p><div class="svcs">';
+  A.services.forEach(function (s) {
+    h += '<button class="tog' + (v[s.id] ? ' on' : '') + '" data-s="' + s.id + '"><span>' + esc(s.name) + '</span><span class="sw"></span></button>';
+  });
+  h += '</div><div class="fld" style="margin-top:12px"><label>Праздник (необязательно)</label><input type="text" id="dTitle" maxlength="60" placeholder="Покров Пресвятой Богородицы"></div>' +
+    '<button class="main" id="dSave">Сохранить</button>' +
+    (info.changed ? '<button class="btn" id="dReset" style="width:100%;margin-top:8px">Вернуть как обычно</button>' : '') +
+    '<p class="err" id="dErr"></p>';
+  box.innerHTML = h;
+  $('dTitle').value = info.title || '';
+  [].forEach.call(box.querySelectorAll('.tog'), function (b) {
+    b.onclick = function () { var s = b.getAttribute('data-s'); v[s] = !v[s]; b.classList.toggle('on', v[s]); };
+  });
+  var save = function (val) {
+    $('dSave').disabled = true; $('dSave').textContent = 'Сохраняем…';
+    call('clergySaveDay', [A.pin, key, val], function (r) {
+      if (!r.ok) { $('dSave').disabled = false; $('dSave').textContent = 'Сохранить'; $('dErr').textContent = r.error || 'Ошибка'; return; }
+      A.month = r.days; renderCals(); renderDayEdit();
+      $('dSave').textContent = 'Сохранено ✓';
+      setTimeout(function () { if ($('dSave')) $('dSave').textContent = 'Сохранить'; }, 1500);
+    });
+  };
+  $('dSave').onclick = function () { save({ lit: v.lit, mol: v.mol, pan: v.pan, title: $('dTitle').value }); };
+  if ($('dReset')) $('dReset').onclick = function () {
+    var dow = new Date(key + 'T00:00:00Z').getUTCDay(), w = A.settings.week;
+    save({ lit: w.lit.indexOf(dow) >= 0, mol: w.mol.indexOf(dow) >= 0, pan: w.pan.indexOf(dow) >= 0, title: '' });
+  };
+}
+
+/* ── настройки ── */
+var W = null;
+function fillSettings() {
+  var s = A.settings;
+  $('sTemple').value = s.temple;
+  var p = '';
+  A.trebas.forEach(function (t) {
+    var x = s.prices[t.id]; if (typeof x === 'number') x = { price: x, per: 'name', max: 0 };
+    p += '<div class="pr" data-p="' + t.id + '"><b>' + esc(t.name) + '</b><div class="prr">' +
+      '<input type="number" min="0" step="1" class="pp" value="' + (x.price || 0) + '"><span>грн за</span>' +
+      '<select class="pper"><option value="name"' + (x.per === 'name' ? ' selected' : '') + '>имя</option>' +
+      '<option value="note"' + (x.per === 'note' ? ' selected' : '') + '>записку</option></select></div>' +
+      '<div class="prr pmax' + (x.per === 'note' ? '' : ' hidden') + '"><span>до скольки имён в одной записке (пусто — без ограничения)</span>' +
+      '<input type="number" min="0" max="100" step="1" class="pm" value="' + (x.max || '') + '" placeholder="—"></div></div>';
+  });
+  $('sPrices').innerHTML = p;
+  [].forEach.call($('sPrices').querySelectorAll('.pper'), function (sel) {
+    sel.onchange = function () { sel.closest('.pr').querySelector('.pmax').classList.toggle('hidden', sel.value !== 'note'); };
+  });
+  W = JSON.parse(JSON.stringify(s.week));
+  var order = [1, 2, 3, 4, 5, 6, 0], wk = '<span></span>';
+  WD.forEach(function (d) { wk += '<span class="c">' + d + '</span>'; });
+  A.services.forEach(function (sv) {
+    wk += '<span>' + esc(sv.name) + '</span>';
+    order.forEach(function (d) { wk += '<button data-s="' + sv.id + '" data-d="' + d + '" class="' + (W[sv.id].indexOf(d) >= 0 ? 'on' : '') + '">' + SH[sv.id] + '</button>'; });
+  });
+  $('sWeek').innerHTML = wk;
+  [].forEach.call($('sWeek').querySelectorAll('button'), function (b) {
+    b.onclick = function () {
+      var sv = b.getAttribute('data-s'), d = Number(b.getAttribute('data-d')), a = W[sv], i = a.indexOf(d);
+      if (i >= 0) a.splice(i, 1); else a.push(d);
+      b.classList.toggle('on', i < 0);
+    };
+  });
+  var ct = '<span></span><span class="c">будни</span><span class="c">суббота</span><span class="c">воскресенье</span>';
+  A.services.forEach(function (sv) {
+    ct += '<span>' + esc(sv.name) + '</span>';
+    ['wd', 'sat', 'sun'].forEach(function (k) { ct += '<input type="text" inputmode="numeric" maxlength="5" placeholder="08:30" data-s="' + sv.id + '" data-k="' + k + '" value="' + s.cutoff[sv.id][k] + '">'; });
+  });
+  $('sCut').innerHTML = ct;
+  $('sAhead').value = s.ahead;
+  $('sBank').value = s.bankUrl || ''; $('sCard').value = s.card || ''; $('sCardName').value = s.cardName || '';
+  $('pubLink').textContent = A.url; $('pubLink').href = A.url;
+  drawQr();
+}
+function drawQr() {
+  if (!A.url) { $('qr').innerHTML = ''; return; }
+  if (!window.qrcode) { $('qr').innerHTML = '<p class="legend">QR-код не загрузился — обновите страницу.</p>'; return; }
+  var q = qrcode(0, 'M'); q.addData(A.url); q.make();
+  $('qr').innerHTML = '<img alt="QR-код ссылки для прихожан" src="' + q.createDataURL(8, 2) + '">';
+}
+$('saveSet').onclick = function () {
+  var v = { temple: $('sTemple').value, prices: {}, week: W, cutoff: {}, ahead: $('sAhead').value,
+    bankUrl: $('sBank').value, card: $('sCard').value, cardName: $('sCardName').value, newPin: $('sPin').value.trim() };
+  [].forEach.call($('sPrices').querySelectorAll('.pr'), function (r) {
+    var per = r.querySelector('.pper').value;
+    v.prices[r.getAttribute('data-p')] = { price: r.querySelector('.pp').value, per: per, max: per === 'note' ? r.querySelector('.pm').value : 0 };
+  });
+  [].forEach.call($('sCut').querySelectorAll('input'), function (i) {
+    var s = i.getAttribute('data-s'); v.cutoff[s] = v.cutoff[s] || {}; v.cutoff[s][i.getAttribute('data-k')] = i.value;
+  });
+  $('setErr').textContent = ''; $('setOk').textContent = '';
+  $('saveSet').disabled = true;
+  call('clergySaveSettings', [A.pin, v], function (r) {
+    $('saveSet').disabled = false;
+    if (!r.ok) { $('setErr').textContent = r.error || 'Ошибка'; return; }
+    if (v.newPin) { A.pin = v.newPin; remember(v.newPin); $('sPin').value = ''; }
+    A.settings = r.settings; $('setOk').textContent = 'Сохранено';
+    loadMonth();
+  });
+};
+
+/* ── мелочи ── */
+var DOWF = ['воскресенье', 'понедельник', 'вторник', 'среда', 'четверг', 'пятница', 'суббота'];
+var MONG = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'];
+function longLabel(k) { var d = new Date(k + 'T00:00:00Z'); return DOWF[d.getUTCDay()] + ', ' + d.getUTCDate() + ' ' + MONG[d.getUTCMonth()]; }
+function cap(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
+function about(k) { return (/^[аеиоуэ]/i.test(k) ? 'Об ' : 'О ') + k; }
+function el(tag, cls) { var e = document.createElement(tag); if (cls) e.className = cls; return e; }
+function esc(s) { return String(s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+function plural(n, a, b, c) { var m = n % 10, h = n % 100; return m === 1 && h !== 11 ? a : m >= 2 && m <= 4 && (h < 12 || h > 14) ? b : c; }
+
+/* ── старт ── */
+(function boot() {
+  var p = stored();
+  if (!p) {
+    call('clergyLogin', [''], function (r) { showLogin(!!r.needPin); });
+    return;
+  }
+  call('clergyLogin', [p], function (r) {
+    if (r.ok) { A.pin = p; start(r); }
+    else showLogin(!!r.needPin, r.needPin ? '' : 'Войдите снова');
+  });
+})();
+</script>
+</body>
+</html>
