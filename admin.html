@@ -41,6 +41,26 @@
   .tabs { position: fixed; left: 0; right: 0; bottom: 0; display: flex; background: var(--card); border-top: 1px solid var(--line);
     padding: 6px 6px calc(6px + env(safe-area-inset-bottom)); z-index: 5; }
   .tabs button { flex: 1; background: none; border: none; padding: 8px 4px; font-size: 14px; color: var(--muted); cursor: pointer; border-radius: 10px; }
+  .tabs button { font-size: 13px !important; }
+  input[type=date] { height: 46px; border: 1px solid var(--line); border-radius: 10px; padding: 0 10px; font: inherit; font-size: 16px;
+    background: transparent; color: var(--text); width: 100%; min-width: 0; }
+  .quick { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-bottom: 12px; }
+  .quick .btn, .grid2 .btn { font-size: 15px; padding: 6px 8px; }
+  .f2d { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+  .grid2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+  .kpis { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin: 4px 0 14px; }
+  .kpi { background: var(--gold-bg); border-radius: 10px; padding: 10px 8px; text-align: center; }
+  .kpi b { display: block; font-size: 22px; line-height: 1.2; }
+  .kpi span { font-size: 12px; color: var(--muted); }
+  table.rep { width: 100%; border-collapse: collapse; font-size: 15px; }
+  table.rep th { font-size: 12px; font-weight: 400; color: var(--muted); text-align: right; padding: 4px 4px 6px; border-bottom: 1px solid var(--line); }
+  table.rep th:first-child, table.rep td:first-child { text-align: left; }
+  table.rep td { padding: 7px 4px; text-align: right; white-space: nowrap; }
+  table.rep td:first-child { white-space: normal; }
+  table.rep tr.t td { font-weight: 600; border-top: 1px solid var(--line); }
+  table.rep tr.p td { color: var(--muted); font-size: 14px; padding-top: 2px; padding-bottom: 2px; }
+  table.rep tr.p td:first-child { padding-left: 14px; }
+  table.rep tr.sum td { font-weight: 700; border-top: 2px solid var(--text); }
   .tabs button b { display: block; font-size: 20px; line-height: 1.1; font-weight: 400; }
   .tabs button.on { color: var(--text); background: var(--gold-bg); }
 
@@ -163,6 +183,31 @@
       <div class="card hidden" id="dayEdit"></div>
     </section>
 
+    <!-- Отчёт -->
+    <section id="tabRep" class="hidden">
+      <h1>Звіт</h1>
+      <p class="sub">Скільки записок, імен і яка розрахункова сума за період</p>
+      <div class="card noprint">
+        <div class="quick" id="rQuick">
+          <button class="btn" data-q="week">Цей тиждень</button>
+          <button class="btn" data-q="month">Цей місяць</button>
+          <button class="btn" data-q="prev">Минулий місяць</button>
+          <button class="btn" data-q="year">Цей рік</button>
+        </div>
+        <div class="f2d">
+          <div class="fld"><label>З</label><input type="date" id="rFrom"></div>
+          <div class="fld"><label>По</label><input type="date" id="rTo"></div>
+        </div>
+        <div class="grid2" id="rBasis">
+          <button class="btn on" data-b="submitted">За датою подання</button>
+          <button class="btn" data-b="service">За датою служби</button>
+        </div>
+        <button class="main" id="rGo" style="margin-top:12px">Сформувати</button>
+        <p class="err" id="rErr"></p>
+      </div>
+      <div id="rOut"></div>
+    </section>
+
     <!-- Настройки -->
     <section id="tabSet" class="hidden">
       <h1>Налаштування</h1>
@@ -213,6 +258,7 @@
 <nav class="tabs hidden" id="tabs">
   <button data-tab="tabNotes" class="on"><b>☰</b>Записки</button>
   <button data-tab="tabSched"><b>▦</b>Розклад</button>
+  <button data-tab="tabRep"><b>∑</b>Звіт</button>
   <button data-tab="tabSet"><b>⚙</b>Налаштування</button>
 </nav>
 
@@ -295,11 +341,12 @@ function start(r) {
 });
 function switchTab(t) {
   A.tab = t;
-  ['tabNotes', 'tabSched', 'tabSet'].forEach(function (x) { $(x).classList.toggle('hidden', x !== t); });
+  ['tabNotes', 'tabSched', 'tabRep', 'tabSet'].forEach(function (x) { $(x).classList.toggle('hidden', x !== t); });
   [].forEach.call(document.querySelectorAll('#tabs button'), function (b) { b.classList.toggle('on', b.getAttribute('data-tab') === t); });
   if (t === 'tabNotes') { closeNote(); }
   renderCals();
   if (t === 'tabSched') renderDayEdit();
+  if (t === 'tabRep' && !$('rFrom').value) setPeriod('month');
   window.scrollTo(0, 0);
 }
 
@@ -501,6 +548,65 @@ $('saveSet').onclick = function () {
     loadMonth();
   });
 };
+
+
+/* ── отчёт ── */
+var R = { basis: 'submitted' };
+function ymd(d) { return d.getUTCFullYear() + '-' + ('0' + (d.getUTCMonth() + 1)).slice(-2) + '-' + ('0' + d.getUTCDate()).slice(-2); }
+function setPeriod(q) {
+  var t = new Date(A.today + 'T00:00:00Z'), y = t.getUTCFullYear(), m = t.getUTCMonth(), f, to = t;
+  if (q === 'week') { f = new Date(t.getTime() - ((t.getUTCDay() + 6) % 7) * 864e5); to = new Date(f.getTime() + 6 * 864e5); }
+  else if (q === 'month') { f = new Date(Date.UTC(y, m, 1)); to = new Date(Date.UTC(y, m + 1, 0)); }
+  else if (q === 'prev') { f = new Date(Date.UTC(y, m - 1, 1)); to = new Date(Date.UTC(y, m, 0)); }
+  else { f = new Date(Date.UTC(y, 0, 1)); to = new Date(Date.UTC(y, 11, 31)); }
+  $('rFrom').value = ymd(f); $('rTo').value = ymd(to);
+}
+[].forEach.call(document.querySelectorAll('#rQuick .btn'), function (b) {
+  b.onclick = function () { setPeriod(b.getAttribute('data-q')); runReport(); };
+});
+[].forEach.call(document.querySelectorAll('#rBasis .btn'), function (b) {
+  b.onclick = function () {
+    R.basis = b.getAttribute('data-b');
+    [].forEach.call(document.querySelectorAll('#rBasis .btn'), function (x) { x.classList.toggle('on', x === b); });
+  };
+});
+$('rGo').onclick = runReport;
+function dmy(k) { return k.slice(8, 10) + '.' + k.slice(5, 7) + '.' + k.slice(0, 4); }
+function money(n) { return String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' грн'; }
+function runReport() {
+  var f = $('rFrom').value, t = $('rTo').value;
+  $('rErr').textContent = '';
+  if (!f || !t) { $('rErr').textContent = 'Оберіть період'; return; }
+  $('rGo').disabled = true; $('rGo').textContent = 'Рахуємо…';
+  call('clergyReport', [A.pin, f, t, R.basis], function (r) {
+    $('rGo').disabled = false; $('rGo').textContent = 'Сформувати';
+    if (!r.ok) { $('rErr').textContent = r.error || 'Помилка'; return; }
+    var h = '<div class="card"><h1 style="font-size:19px">' + dmy(r.from) + ' — ' + dmy(r.to) + '</h1>' +
+      '<p class="sub" style="margin:0 0 10px">' + (r.basis === 'service' ? 'За датою служби' : 'За датою подання') + '</p>';
+    if (!r.total.notes) {
+      $('rOut').innerHTML = h + '<p class="sub" style="margin:0">За цей період записок немає.</p></div>'; return;
+    }
+    h += '<div class="kpis"><div class="kpi"><b>' + r.total.notes + '</b><span>записок</span></div>' +
+      '<div class="kpi"><b>' + r.total.names + '</b><span>імен</span></div>' +
+      '<div class="kpi"><b>' + money(r.total.sum).replace(' грн', '') + '</b><span>грн</span></div></div>';
+    h += '<table class="rep"><tr><th>Треба</th><th>Записок</th><th>Імен</th><th>Сума</th></tr>';
+    r.byTreba.forEach(function (g) {
+      h += '<tr class="t"><td>' + esc(g.treba) + '</td><td>' + g.notes + '</td><td>' + g.names + '</td><td>' + money(g.sum) + '</td></tr>';
+      g.byPay.forEach(function (p) {
+        h += '<tr class="p"><td>' + esc(p.pay) + '</td><td>' + p.notes + '</td><td>' + p.names + '</td><td>' + money(p.sum) + '</td></tr>';
+      });
+    });
+    h += '<tr class="sum"><td>Разом</td><td>' + r.total.notes + '</td><td>' + r.total.names + '</td><td>' + money(r.total.sum) + '</td></tr></table>';
+    h += '<p class="lbl" style="margin:18px 0 6px">За способом пожертви</p><table class="rep"><tr><th>Спосіб</th><th>Записок</th><th>Імен</th><th>Сума</th></tr>';
+    r.byPay.forEach(function (p) {
+      h += '<tr class="t"><td>' + esc(p.pay) + '</td><td>' + p.notes + '</td><td>' + p.names + '</td><td>' + money(p.sum) + '</td></tr>';
+    });
+    h += '</table><p class="legend">Сума — розрахована сайтом рекомендована пожертва, а не фактично отримані кошти.</p>' +
+      '<button class="btn noprint" id="rPrint" style="width:100%;margin-top:10px">Друк</button></div>';
+    $('rOut').innerHTML = h;
+    $('rPrint').onclick = function () { window.print(); };
+  });
+}
 
 /* ── мелочи ── */
 var DOWF = ['неділя', 'понеділок', 'вівторок', 'середа', 'четвер', 'п’ятниця', 'субота'];
