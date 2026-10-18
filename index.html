@@ -600,6 +600,7 @@ function renderMy(refresh) {
     c.innerHTML = '<h3>' + esc(x.trebaName) + ' · ' + esc(about(x.kind).toLowerCase()) + '</h3>' +
       '<p class="meta">' + (x.sor ? 'Початок: ' : '') + esc(x.dateLabel) + ' · ' + x.names.length + ' ' + plural(x.names.length, 'ім’я', 'імені', 'імен') + '</p>' +
       '<p class="nm">' + x.names.map(esc).join(', ') + '</p>' +
+      '<p class="meta">' + payText(x) + '</p>' +
       '<p class="st' + (open ? ' open' : '') + '">' + (x.gone ? 'Записку не знайдено' : open ? esc(untilText(x)) : 'Прийом закінчився — змінити вже не можна') + '</p>' +
       '<div class="btns">' + (open && !x.gone ? '<button data-a="edit">Змінити</button>' : '') + '<button data-a="again" class="pri">Подати ще раз</button></div>';
     c.querySelector('[data-a=again]').onclick = function () { again(x); };
@@ -607,6 +608,12 @@ function renderMy(refresh) {
     box.appendChild(c);
   });
   if (refresh) refreshMy();
+}
+function payText(x) {
+  var how = { online: 'онлайн (банка або картка)', cash: 'у церковній лавці', none: 'без пожертви' }[x.pay] || '';
+  if (!how) return '';
+  if (x.pay === 'none') return 'Без пожертви';
+  return 'Пожертва: ' + how + ' · <b>' + (Number(x.sum) || 0) + ' грн</b>' + (x.pay === 'online' && x.id ? ' · записка ' + esc(x.id) : '');
 }
 function refreshMy() {
   // спрашиваем сервер про все записки: время на телефоне может отличаться
