@@ -4,6 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Записки</title>
+<link rel="icon" href="icon.png">
+<link rel="apple-touch-icon" href="icon.png">
+<meta name="theme-color" content="#8e2a1c">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Old+Standard+TT:wght@400;700&display=swap" rel="stylesheet">
 <style>
@@ -68,6 +71,32 @@
   .copy button { flex: 0 0 auto; padding: 0 14px; border: 1px solid var(--line); border-radius: 10px; background: var(--card);
     color: var(--text); font: inherit; cursor: pointer; }
   .closed { text-align: center; color: var(--muted); }
+  .seg { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px; background: var(--card); border: 1px solid var(--line);
+    border-radius: 12px; padding: 4px; margin: 0 0 14px; }
+  .seg button { border: none; background: transparent; color: var(--muted); font: inherit; font-size: 15px; padding: 10px 4px; border-radius: 9px; cursor: pointer; }
+  .seg button.on { background: var(--gold-bg); color: var(--text); }
+  .seg .cnt { display: inline-block; min-width: 20px; padding: 0 6px; border-radius: 99px; background: var(--red); color: var(--on-red); font-size: 12px; line-height: 20px; margin-left: 4px; }
+  .pchips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .pchip { border: 1px solid var(--line); background: transparent; color: var(--text); border-radius: 99px; padding: 7px 12px; font: inherit; font-size: 15px; cursor: pointer; }
+  .pchip.on { background: var(--gold-bg); border-color: var(--gold); }
+  .pchip.on::before { content: '✓ '; color: var(--gold); }
+  .plist { margin: 0 0 10px; padding: 0; list-style: none; }
+  .plist li { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--line); font-size: 17px; }
+  .plist li:last-child { border-bottom: none; }
+  .plist button { border: none; background: none; color: var(--muted); font-size: 22px; padding: 0 6px; cursor: pointer; }
+  .addrow { display: flex; gap: 8px; margin-bottom: 10px; }
+  .addrow input { flex: 1; min-width: 0; height: 46px; border: 1px solid var(--line); border-radius: 10px; padding: 0 12px; font: inherit; font-size: 17px; background: transparent; color: var(--text); }
+  .addrow button { flex: 0 0 auto; padding: 0 14px; border: 1px solid var(--line); border-radius: 10px; background: var(--card); color: var(--text); font: inherit; cursor: pointer; }
+  .note { padding: 14px 16px; }
+  .note h3 { margin: 0 0 2px; font-size: 17px; }
+  .note .meta { font-size: 14px; color: var(--muted); margin: 0 0 8px; }
+  .note .nm { font-size: 16px; margin: 0 0 10px; }
+  .note .st { font-size: 13px; margin: 0 0 10px; color: var(--muted); }
+  .note .st.open { color: var(--ok); }
+  .btns { display: flex; gap: 8px; }
+  .btns button { flex: 1; min-height: 44px; border: 1px solid var(--line); border-radius: 10px; background: var(--card); color: var(--text); font: inherit; font-size: 15px; cursor: pointer; }
+  .btns button.pri { background: var(--red); border-color: var(--red); color: var(--on-red); }
+  .ok { color: var(--ok); font-size: 14px; text-align: center; margin: 8px 0 0; }
   .hidden { display: none !important; }
 </style>
 </head>
@@ -79,6 +108,14 @@
     <h1 id="temple">Храм</h1>
     <p>Подати записку</p>
   </header>
+
+  <nav class="seg" id="seg">
+    <button data-v="vForm" class="on">Записка</button>
+    <button data-v="vPom">Помянник</button>
+    <button data-v="vMy">Мої записки<span class="cnt hidden" id="myCnt"></span></button>
+  </nav>
+
+  <section id="vForm">
 
   <div id="form">
     <div class="card">
@@ -102,6 +139,10 @@
       <p class="lbl">Імена — у родовому відмінку, по одному в полі</p>
       <div id="names"></div>
       <button class="link" id="add">+ Додати ім’я</button>
+      <div id="pomPick" class="hidden">
+        <p class="lbl" style="margin:8px 0 6px">З помянника — натисніть, щоб додати:</p>
+        <div class="pchips" id="pomChips"></div>
+      </div>
       <p class="hint">Хрещені імена, без прізвищ і по батькові. Можна з позначкою: нем. (немовля), отр. (отрок), новопрест. (новопреставлений), бол. (болящий).</p>
     </div>
 
@@ -125,9 +166,35 @@
     <h2>Записку прийнято</h2>
     <p id="doneText"></p>
     <div id="payBox"></div>
-    <button class="main ghost" id="again" style="margin-top:14px">Подати ще записку</button>
+    <button class="main ghost" id="savePom" style="margin-top:14px">Зберегти імена в помянник</button>
+    <button class="main ghost" id="again" style="margin-top:8px">Подати ще записку</button>
+    <p class="hint" style="margin-top:12px">Записку можна змінити до кінця прийому — у розділі «Мої записки».</p>
   </div>
-  <p style="text-align:center;margin:28px 0 0"><a id="adminLink" target="_top" style="color:var(--muted);font-size:13px">Для духовенства</a></p>
+  </section>
+
+  <section id="vPom" class="hidden">
+    <div class="card">
+      <p class="soft" style="margin:0">Ваш помянник зберігається лише на цьому телефоні. Імена з нього можна додати в записку одним дотиком.</p>
+    </div>
+    <div class="card" data-k="z">
+      <p class="lbl">За здоров’я</p>
+      <ul class="plist"></ul>
+      <div class="addrow"><input type="text" maxlength="60" placeholder="Іоанна" autocapitalize="words" autocomplete="off"><button>Додати</button></div>
+      <button class="main ghost">Подати записку з цими іменами</button>
+    </div>
+    <div class="card" data-k="u">
+      <p class="lbl">За упокій</p>
+      <ul class="plist"></ul>
+      <div class="addrow"><input type="text" maxlength="60" placeholder="Марії" autocapitalize="words" autocomplete="off"><button>Додати</button></div>
+      <button class="main ghost">Подати записку з цими іменами</button>
+    </div>
+    <p class="hint">Імена — у родовому відмінку, як у записці.</p>
+  </section>
+
+  <section id="vMy" class="hidden">
+    <p class="soft">Записки, подані з цього телефона. Змінити імена можна до кінця прийому записок на цю службу.</p>
+    <div id="myList"></div>
+  </section>
 </div>
 
 <script>
@@ -155,7 +222,6 @@ var S, $ = function (id) { return document.getElementById(id); };
 function init() {
   $('temple').textContent = CFG.temple;
   document.title = CFG.temple + ' — записки';
-  if (CFG.adminUrl) $('adminLink').href = CFG.adminUrl; else $('adminLink').classList.add('hidden');
   $('add').onclick = function () { addName('', true); };
   $('more').onclick = function () { S.showAll = true; renderDates(); };
   [].forEach.call(document.querySelectorAll('#pays .chip'), function (b) {
@@ -163,6 +229,12 @@ function init() {
   });
   $('go').onclick = submit;
   $('again').onclick = reset;
+  $('savePom').onclick = saveDoneToPom;
+  [].forEach.call(document.querySelectorAll('#seg button'), function (b) {
+    b.onclick = function () { view(b.getAttribute('data-v')); };
+  });
+  initPom();
+  updateMyCnt();
   if (!CFG.bankUrl && !CFG.card) $('pays').children[0].classList.add('hidden');
   reset();
 }
@@ -283,6 +355,7 @@ function priceText(p, n) {
 }
 
 function calc() {
+  renderPomPick();
   var n = names().length, p = treba().price;
   $('calc').textContent = priceText(p, n);
   $('sum').textContent = (n ? sumFor(p, n) : (p.per === 'name' ? 0 : p.price)) + ' грн';
@@ -307,6 +380,9 @@ function submit() {
 }
 
 function showDone(r, p) {
+  S.last = { names: r.names || p.names, kind: p.kind };
+  rememberNote(r, p);
+  $('savePom').textContent = 'Зберегти імена в помянник'; $('savePom').disabled = false;
   $('form').classList.add('hidden'); $('done').classList.remove('hidden');
   $('doneText').innerHTML = esc(treba().name) + ' · ' + esc(about(p.kind).toLowerCase()) + '<br>' +
     (r.sorCount ? 'Початок: ' + esc(r.dateLabel) + '<br>' + r.sorCount + ' літургій' + (r.sorEnd ? ', останнє поминання орієнтовно: ' + esc(r.sorEnd) : '') : esc(r.dateLabel)) +
@@ -342,6 +418,207 @@ function copyCard() {
   } catch (e) {}
 }
 
+
+/* ── память на телефоне ── */
+function lsGet(k, d) { try { var v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch (e) { return d; } }
+function lsSet(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+function kyivNow() {
+  try {
+    var p = {}; new Intl.DateTimeFormat('en-GB', { timeZone: 'Europe/Kyiv', year: 'numeric', month: '2-digit', day: '2-digit',
+      hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }).formatToParts(new Date()).forEach(function (x) { p[x.type] = x.value; });
+    return p.year + '-' + p.month + '-' + p.day + ' ' + p.hour + ':' + p.minute;
+  } catch (e) { return ''; }
+}
+function same(a, b) { return a.trim().toLowerCase() === b.trim().toLowerCase(); }
+
+function view(v) {
+  ['vForm', 'vPom', 'vMy'].forEach(function (x) { $(x).classList.toggle('hidden', x !== v); });
+  [].forEach.call(document.querySelectorAll('#seg button'), function (b) { b.classList.toggle('on', b.getAttribute('data-v') === v); });
+  if (v === 'vPom') renderPom();
+  if (v === 'vMy') renderMy(true);
+  if (v === 'vForm') renderPomPick();
+  window.scrollTo(0, 0);
+}
+
+/* ── помянник ── */
+var POM = lsGet('zp_pom', { z: [], u: [] });
+function pk(kind) { return kind === 'упокій' ? 'u' : 'z'; }
+function pomAdd(k, n) {
+  n = String(n || '').replace(/\s+/g, ' ').trim().slice(0, 60);
+  if (!n || POM[k].some(function (x) { return same(x, n); })) return false;
+  POM[k].push(n); lsSet('zp_pom', POM); return true;
+}
+function initPom() {
+  [].forEach.call(document.querySelectorAll('#vPom .card[data-k]'), function (c) {
+    var k = c.getAttribute('data-k'), inp = c.querySelector('input');
+    var add = function () { if (pomAdd(k, inp.value)) { inp.value = ''; renderPom(); } inp.focus(); };
+    c.querySelector('.addrow button').onclick = add;
+    inp.onkeydown = function (e) { if (e.key === 'Enter') { e.preventDefault(); add(); } };
+    c.querySelector('.main').onclick = function () { fromPom(k); };
+  });
+}
+function renderPom() {
+  [].forEach.call(document.querySelectorAll('#vPom .card[data-k]'), function (c) {
+    var k = c.getAttribute('data-k'), ul = c.querySelector('.plist');
+    ul.innerHTML = POM[k].length ? '' : '<li style="color:var(--muted);font-size:15px">Поки порожньо</li>';
+    POM[k].forEach(function (n, i) {
+      var li = el('li'); li.appendChild(document.createTextNode(n));
+      var b = el('button'); b.textContent = '×'; b.setAttribute('aria-label', 'Видалити ' + n);
+      b.onclick = function () { POM[k].splice(i, 1); lsSet('zp_pom', POM); renderPom(); };
+      li.appendChild(b); ul.appendChild(li);
+    });
+    c.querySelector('.main').classList.toggle('hidden', !POM[k].length);
+  });
+}
+function fromPom(k) {
+  var kind = k === 'u' ? 'упокій' : 'здоров’я';
+  if (treba().kinds.indexOf(kind) < 0) {
+    for (var i = 0; i < CFG.trebas.length; i++) if (CFG.trebas[i].kinds.indexOf(kind) >= 0) { S.t = i; break; }
+  }
+  reset(); S.kind = kind; fillNames(POM[k].slice(0, 50)); render(); view('vForm');
+}
+function renderPomPick() {
+  var box = $('pomPick');
+  if (!S || !S.kind || !POM[pk(S.kind)].length) { box.classList.add('hidden'); return; }
+  box.classList.remove('hidden');
+  var cur = names(), wrap = $('pomChips'); wrap.innerHTML = '';
+  POM[pk(S.kind)].forEach(function (n) {
+    var on = cur.some(function (x) { return same(x, n); });
+    var b = el('button', 'pchip' + (on ? ' on' : '')); b.type = 'button'; b.textContent = n;
+    b.onclick = function () { togglePomName(n); };
+    wrap.appendChild(b);
+  });
+}
+function togglePomName(n) {
+  var ins = [].slice.call(document.querySelectorAll('#names input'));
+  var hit = ins.filter(function (i) { return same(i.value, n); })[0];
+  if (hit) { hit.value = ''; }
+  else {
+    var empty = ins.filter(function (i) { return !i.value.trim(); })[0];
+    if (empty) empty.value = n; else addName(n);
+  }
+  calc(); clearErr();
+}
+function fillNames(arr) {
+  $('names').innerHTML = '';
+  arr.forEach(function (n) { addName(n); });
+  if (arr.length < 3) for (var i = arr.length; i < 3; i++) addName();
+  calc();
+}
+function saveDoneToPom() {
+  if (!S.last) return;
+  var k = pk(S.last.kind), added = 0;
+  S.last.names.forEach(function (n) { if (pomAdd(k, n)) added++; });
+  $('savePom').textContent = added ? 'Додано в помянник ✓' : 'Ці імена вже є в помяннику';
+  $('savePom').disabled = true;
+}
+
+/* ── мої записки ── */
+var MY = lsGet('zp_my', []);
+function saveMy() { MY = MY.slice(0, 30); lsSet('zp_my', MY); updateMyCnt(); }
+function updateMyCnt() {
+  var now = kyivNow(), n = MY.filter(function (x) { return x.until > now; }).length;
+  $('myCnt').textContent = n; $('myCnt').classList.toggle('hidden', !n);
+}
+function rememberNote(r, p) {
+  if (!r.token) return;
+  MY.unshift({ id: r.id, token: r.token, trebaId: p.treba, trebaName: treba().name, kind: p.kind,
+    date: r.date, dateLabel: r.dateLabel, names: r.names || p.names, pay: p.pay, sum: r.sum,
+    until: r.until, sor: r.sorCount || 0, limit: null });
+  saveMy();
+}
+function untilText(x) {
+  var t = x.until.slice(11), d = x.until.slice(0, 10);
+  return 'Можна змінити до ' + t + (d === x.date ? ' у день служби' : '') + ' (' + x.dateLabel + ')';
+}
+function renderMy(refresh) {
+  var box = $('myList'), now = kyivNow();
+  if (!MY.length) { box.innerHTML = '<div class="card"><p class="soft" style="margin:0">Тут з’являться записки, які ви подасте з цього телефона.</p></div>'; return; }
+  box.innerHTML = '';
+  MY.forEach(function (x, i) {
+    var open = x.editable !== undefined ? x.editable : x.until > now;
+    var c = el('div', 'card note');
+    c.innerHTML = '<h3>' + esc(x.trebaName) + ' · ' + esc(about(x.kind).toLowerCase()) + '</h3>' +
+      '<p class="meta">' + (x.sor ? 'Початок: ' : '') + esc(x.dateLabel) + ' · ' + x.names.length + ' ' + plural(x.names.length, 'ім’я', 'імені', 'імен') + '</p>' +
+      '<p class="nm">' + x.names.map(esc).join(', ') + '</p>' +
+      '<p class="st' + (open ? ' open' : '') + '">' + (x.gone ? 'Записку не знайдено' : open ? esc(untilText(x)) : 'Прийом закінчився — змінити вже не можна') + '</p>' +
+      '<div class="btns">' + (open && !x.gone ? '<button data-a="edit">Змінити</button>' : '') + '<button data-a="again" class="pri">Подати ще раз</button></div>';
+    c.querySelector('[data-a=again]').onclick = function () { again(x); };
+    if (c.querySelector('[data-a=edit]')) c.querySelector('[data-a=edit]').onclick = function () { editNote(c, x); };
+    box.appendChild(c);
+  });
+  if (refresh) refreshMy();
+}
+function refreshMy() {
+  // спрашиваем сервер про все записки: время на телефоне может отличаться
+  var list = MY.filter(function (x) { return !x.gone; }).map(function (x) { return { id: x.id, token: x.token }; });
+  if (!list.length) return;
+  google.script.run.withSuccessHandler(function (r) {
+    if (!r || !r.ok) return;
+    MY.forEach(function (x) {
+      var st = r.notes[x.id]; if (!st) return;
+      if (!st.exists) { x.gone = true; x.editable = false; return; }
+      x.editable = st.editable; x.names = st.names; x.limit = st.limit;
+    });
+    saveMy(); renderMy(false);
+    var n = MY.filter(function (x) { return x.editable; }).length;
+    $('myCnt').textContent = n; $('myCnt').classList.toggle('hidden', !n);
+  }).noteStatus(list);
+}
+function again(x) {
+  var idx = -1;
+  CFG.trebas.forEach(function (t, i) { if (t.id === x.trebaId) idx = i; });
+  if (idx < 0) { alert('Ця треба зараз не приймається.'); return; }
+  S.t = idx; reset(); S.kind = x.kind; fillNames(x.names.slice()); render(); view('vForm');
+}
+function localLimit(x) {
+  var t = CFG.trebas.filter(function (y) { return y.id === x.trebaId; })[0], n = x.names.length;
+  if (!t) return n;
+  var p = t.price;
+  return p.per === 'name' ? n : p.max ? Math.ceil(n / p.max) * p.max : 50;
+}
+function editNote(card, x) {
+  var limit = x.limit || localLimit(x);
+  var h = '<h3>' + esc(x.trebaName) + ' · ' + esc(about(x.kind).toLowerCase()) + '</h3><p class="meta">' + esc(x.dateLabel) + '</p>' +
+    '<div class="eNames"></div><button class="link eAdd">+ Додати ім’я</button>' +
+    '<p class="hint eLim"></p><div class="btns" style="margin-top:10px"><button data-a="cancel">Скасувати</button><button data-a="save" class="pri">Зберегти</button></div>' +
+    '<p class="err eErr"></p>';
+  card.innerHTML = h;
+  var box = card.querySelector('.eNames');
+  var add = function (v) {
+    var row = el('div', 'row'), i = el('input'); i.type = 'text'; i.maxLength = 60; i.value = v || ''; i.autocapitalize = 'words';
+    var b = el('button', 'x'); b.type = 'button'; b.textContent = '×';
+    b.onclick = function () { row.parentNode.removeChild(row); lim(); };
+    i.oninput = lim;
+    row.appendChild(i); row.appendChild(b); box.appendChild(row);
+  };
+  var vals = function () { return [].map.call(box.querySelectorAll('input'), function (i) { return i.value.trim(); }).filter(Boolean); };
+  var lim = function () {
+    var n = box.querySelectorAll('input').length;
+    card.querySelector('.eAdd').classList.toggle('hidden', n >= limit);
+    card.querySelector('.eLim').textContent = limit > x.names.length && limit < 50
+      ? 'Можна вписати до ' + limit + ' імен — стільки вже оплачено. Більше — новою запискою.'
+      : limit >= 50 ? '' : 'Додати нові імена в цю записку не можна — лише виправити або прибрати. Щоб додати, подайте нову записку.';
+  };
+  x.names.forEach(function (n) { add(n); });
+  card.querySelector('.eAdd').onclick = function () { add(''); lim(); var ins = box.querySelectorAll('input'); ins[ins.length - 1].focus(); };
+  lim();
+  card.querySelector('[data-a=cancel]').onclick = function () { renderMy(false); };
+  card.querySelector('[data-a=save]').onclick = function () {
+    var v = vals(), e = card.querySelector('.eErr');
+    if (!v.length) { e.textContent = 'Залиште хоча б одне ім’я'; return; }
+    var btn = this; btn.disabled = true; btn.textContent = 'Зберігаємо…';
+    google.script.run.withSuccessHandler(function (r) {
+      btn.disabled = false; btn.textContent = 'Зберегти';
+      if (!r || !r.ok) { e.textContent = (r && r.error) || 'Не вдалося зберегти'; return; }
+      x.names = r.names; x.limit = r.limit; saveMy(); renderMy(false);
+      var ok = el('p', 'ok'); ok.textContent = 'Зміни збережено ✓';
+      var cards = $('myList').children, idx = MY.indexOf(x); if (cards[idx]) cards[idx].appendChild(ok);
+    }).withFailureHandler(function () { btn.disabled = false; btn.textContent = 'Зберегти'; e.textContent = 'Немає зв’язку. Спробуйте ще раз.'; })
+      .noteEdit({ id: x.id, token: x.token, names: v });
+  };
+}
+
 function about(k) { return 'За ' + k; }
 function err(m) { $('err').textContent = m; }
 function clearErr() { $('err').textContent = ''; }
@@ -356,7 +633,7 @@ function boot() {
   $('loading').classList.remove('hidden'); $('form').classList.add('hidden');
   google.script.run.withSuccessHandler(function (r) {
     if (!r || !r.ok) { $('loading').innerHTML = 'Не вдалося завантажити. <a href="" style="color:var(--gold)">Оновити</a>'; return; }
-    CFG = r.cfg; CFG.adminUrl = 'admin.html';
+    CFG = r.cfg;
     $('loading').classList.add('hidden'); $('form').classList.remove('hidden');
     init();
   }).withFailureHandler(function () {
