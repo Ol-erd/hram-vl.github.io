@@ -83,6 +83,15 @@
   .plist { margin: 0 0 10px; padding: 0; list-style: none; }
   .plist li { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--line); font-size: 17px; }
   .plist li:last-child { border-bottom: none; }
+  .plist li.sel { cursor: pointer; }
+  .plist .ck { display: inline-flex; align-items: center; gap: 10px; flex: 1; min-width: 0; }
+  .plist .ck i { flex: 0 0 22px; height: 22px; border-radius: 50%; border: 1.5px solid var(--line); font-style: normal; font-size: 14px; line-height: 20px; text-align: center; color: #fff; }
+  .plist li.on .ck i { background: var(--gold); border-color: var(--gold); }
+  .plist li.on .ck i::before { content: '✓'; }
+  .ptools { display: flex; justify-content: space-between; align-items: center; margin: -4px 0 8px; font-size: 14px; color: var(--muted); }
+  .ptools button { border: none; background: none; color: var(--gold); font: inherit; font-size: 14px; padding: 4px 0; cursor: pointer; }
+  .pgo { margin-top: 4px; }
+  .pgo .lbl { margin: 0 0 6px; }
   .plist button { border: none; background: none; color: var(--muted); font-size: 22px; padding: 0 6px; cursor: pointer; }
   .addrow { display: flex; gap: 8px; margin-bottom: 10px; }
   .addrow input { flex: 1; min-width: 0; height: 46px; border: 1px solid var(--line); border-radius: 10px; padding: 0 12px; font: inherit; font-size: 17px; background: transparent; color: var(--text); }
@@ -139,6 +148,7 @@
       <p class="lbl">Імена — у родовому відмінку, по одному в полі</p>
       <div id="names"></div>
       <button class="link" id="add">+ Додати ім’я</button>
+      <p class="ok hidden" id="pomNote" style="text-align:left"></p>
       <div id="pomPick" class="hidden">
         <p class="lbl" style="margin:8px 0 6px">З помянника — натисніть, щоб додати:</p>
         <div class="pchips" id="pomChips"></div>
@@ -174,19 +184,21 @@
 
   <section id="vPom" class="hidden">
     <div class="card">
-      <p class="soft" style="margin:0">Ваш помянник зберігається лише на цьому телефоні. Імена з нього можна додати в записку одним дотиком.</p>
+      <p class="soft" style="margin:0">Ваш помянник зберігається лише на цьому телефоні. Позначте потрібні імена (або нічого — тоді підуть усі) і оберіть требу. Імена за здоров’я потрапляють лише в записки за здоров’я, за упокій — лише за упокій.</p>
     </div>
     <div class="card" data-k="z">
       <p class="lbl">За здоров’я</p>
+      <div class="ptools hidden"><span></span><button type="button"></button></div>
       <ul class="plist"></ul>
       <div class="addrow"><input type="text" maxlength="60" placeholder="Іоанна" autocapitalize="words" autocomplete="off"><button>Додати</button></div>
-      <button class="main ghost">Подати записку з цими іменами</button>
+      <div class="pgo hidden"><p class="lbl"></p><div class="grid"></div></div>
     </div>
     <div class="card" data-k="u">
       <p class="lbl">За упокій</p>
+      <div class="ptools hidden"><span></span><button type="button"></button></div>
       <ul class="plist"></ul>
       <div class="addrow"><input type="text" maxlength="60" placeholder="Марії" autocapitalize="words" autocomplete="off"><button>Додати</button></div>
-      <button class="main ghost">Подати записку з цими іменами</button>
+      <div class="pgo hidden"><p class="lbl"></p><div class="grid"></div></div>
     </div>
     <p class="hint">Імена — у родовому відмінку, як у записці.</p>
   </section>
@@ -244,6 +256,7 @@ function reset() {
   S = { t: keepT, kind: '', date: '', pay: '', showAll: false, busy: false };
   $('names').innerHTML = '';
   addName(); addName(); addName();
+  $('pomNote').classList.add('hidden');
   $('form').classList.remove('hidden');
   $('done').classList.add('hidden');
   clearErr();
@@ -263,6 +276,8 @@ function render() {
   });
   var kinds = treba().kinds;
   if (kinds.indexOf(S.kind) < 0) S.kind = kinds.length === 1 ? kinds[0] : '';
+  if (S.lastKind && S.kind && S.lastKind !== S.kind) stripKind(S.lastKind, S.kind);
+  if (S.kind) S.lastKind = S.kind;
   var kb = $('kinds'); kb.innerHTML = '';
   kinds.forEach(function (k) {
     var b = el('button', 'chip' + (k === S.kind ? ' on' : ''));
@@ -443,56 +458,99 @@ function view(v) {
 /* ── помянник ── */
 var POM = lsGet('zp_pom', { z: [], u: [] });
 function pk(kind) { return kind === 'упокій' ? 'u' : 'z'; }
+// одинаковые имена допустимы: в помяннике может быть, например, две Марії
 function pomAdd(k, n) {
   n = String(n || '').replace(/\s+/g, ' ').trim().slice(0, 60);
-  if (!n || POM[k].some(function (x) { return same(x, n); })) return false;
+  if (!n) return false;
   POM[k].push(n); lsSet('zp_pom', POM); return true;
 }
+function cnt(arr, n) { return arr.filter(function (x) { return same(x, n); }).length; }
 function initPom() {
   [].forEach.call(document.querySelectorAll('#vPom .card[data-k]'), function (c) {
     var k = c.getAttribute('data-k'), inp = c.querySelector('input');
     var add = function () { if (pomAdd(k, inp.value)) { inp.value = ''; renderPom(); } inp.focus(); };
     c.querySelector('.addrow button').onclick = add;
     inp.onkeydown = function (e) { if (e.key === 'Enter') { e.preventDefault(); add(); } };
-    c.querySelector('.main').onclick = function () { fromPom(k); };
+    c.querySelector('.ptools button').onclick = function () {
+      var all = PSEL[k].length === POM[k].length;
+      PSEL[k] = all ? [] : POM[k].map(function (_, i) { return i; }); renderPom();
+    };
   });
 }
+var PSEL = { z: [], u: [] };   // позначені в помяннику (індекси)
+function kindOf(k) { return k === 'u' ? 'упокій' : 'здоров’я'; }
 function renderPom() {
   [].forEach.call(document.querySelectorAll('#vPom .card[data-k]'), function (c) {
     var k = c.getAttribute('data-k'), ul = c.querySelector('.plist');
     ul.innerHTML = POM[k].length ? '' : '<li style="color:var(--muted);font-size:15px">Поки порожньо</li>';
+    PSEL[k] = PSEL[k].filter(function (i) { return i < POM[k].length; });
     POM[k].forEach(function (n, i) {
-      var li = el('li'); li.appendChild(document.createTextNode(n));
+      var on = PSEL[k].indexOf(i) >= 0;
+      var li = el('li', 'sel' + (on ? ' on' : ''));
+      var ck = el('span', 'ck'); ck.appendChild(el('i')); ck.appendChild(document.createTextNode(n));
+      li.appendChild(ck);
+      li.onclick = function () {
+        PSEL[k] = on ? PSEL[k].filter(function (x) { return x !== i; }) : PSEL[k].concat(i); renderPom();
+      };
       var b = el('button'); b.textContent = '×'; b.setAttribute('aria-label', 'Видалити ' + n);
-      b.onclick = function () { POM[k].splice(i, 1); lsSet('zp_pom', POM); renderPom(); };
+      b.onclick = function (e) {
+        e.stopPropagation();
+        if (!confirm('Видалити «' + n + '» з помянника?')) return;
+        POM[k].splice(i, 1); lsSet('zp_pom', POM);
+        PSEL[k] = PSEL[k].filter(function (x) { return x !== i; }).map(function (x) { return x > i ? x - 1 : x; });
+        renderPom();
+      };
       li.appendChild(b); ul.appendChild(li);
     });
-    c.querySelector('.main').classList.toggle('hidden', !POM[k].length);
+    var n = POM[k].length, m = PSEL[k].length, tools = c.querySelector('.ptools'), go = c.querySelector('.pgo');
+    tools.classList.toggle('hidden', n < 2); go.classList.toggle('hidden', !n);
+    tools.querySelector('span').textContent = m ? 'Позначено: ' + m + ' з ' + n : 'Торкніться імені, щоб позначити';
+    tools.querySelector('button').textContent = m === n ? 'Зняти всі' : 'Позначити всі';
+    go.querySelector('.lbl').textContent = (m && m < n ? 'Подати позначені (' + m + ') на:' : 'Подати всі імена (' + n + ') на:');
+    var g = go.querySelector('.grid'); g.innerHTML = '';
+    CFG.trebas.forEach(function (t, ti) {
+      if (t.kinds.indexOf(kindOf(k)) < 0) return;
+      var b = el('button', 'chip'); b.type = 'button'; b.textContent = t.name;
+      b.onclick = function () { fromPom(k, ti); };
+      g.appendChild(b);
+    });
   });
 }
-function fromPom(k) {
-  var kind = k === 'u' ? 'упокій' : 'здоров’я';
-  if (treba().kinds.indexOf(kind) < 0) {
-    for (var i = 0; i < CFG.trebas.length; i++) if (CFG.trebas[i].kinds.indexOf(kind) >= 0) { S.t = i; break; }
-  }
-  reset(); S.kind = kind; fillNames(POM[k].slice(0, 50)); render(); view('vForm');
+function fromPom(k, ti) {
+  var sel = PSEL[k].slice().sort(function (a, b) { return a - b; });
+  var arr = (sel.length ? sel.map(function (i) { return POM[k][i]; }) : POM[k]).slice(0, 50);
+  S.t = ti; reset(); S.kind = kindOf(k); S.lastKind = S.kind;
+  fillNames(arr); render(); PSEL[k] = []; view('vForm');
+}
+// змінили «за кого» — прибираємо імена з помянника іншого виду
+function stripKind(from, to) {
+  var other = POM[pk(from)], mine = POM[pk(to)], left = [], gone = 0;
+  names().forEach(function (n) {
+    if (cnt(other, n) && !cnt(mine, n)) gone++; else left.push(n);
+  });
+  if (!gone) return;
+  fillNames(left);
+  $('pomNote').textContent = 'Прибрано ' + gone + ' ' + plural(gone, 'ім’я', 'імені', 'імен') +
+    ' з помянника «' + about(from).toLowerCase() + '» — ця записка ' + about(to).toLowerCase() + '.';
+  $('pomNote').classList.remove('hidden');
 }
 function renderPomPick() {
   var box = $('pomPick');
   if (!S || !S.kind || !POM[pk(S.kind)].length) { box.classList.add('hidden'); return; }
   box.classList.remove('hidden');
-  var cur = names(), wrap = $('pomChips'); wrap.innerHTML = '';
-  POM[pk(S.kind)].forEach(function (n) {
-    var on = cur.some(function (x) { return same(x, n); });
+  var cur = names(), wrap = $('pomChips'), list = POM[pk(S.kind)]; wrap.innerHTML = '';
+  list.forEach(function (n, j) {
+    // j-е вхождение имени «включено», если в записке его не меньше, чем по порядку
+    var nth = cnt(list.slice(0, j + 1), n), on = cnt(cur, n) >= nth;
     var b = el('button', 'pchip' + (on ? ' on' : '')); b.type = 'button'; b.textContent = n;
-    b.onclick = function () { togglePomName(n); };
+    b.onclick = function () { togglePomName(n, on); };
     wrap.appendChild(b);
   });
 }
-function togglePomName(n) {
+function togglePomName(n, on) {
   var ins = [].slice.call(document.querySelectorAll('#names input'));
-  var hit = ins.filter(function (i) { return same(i.value, n); })[0];
-  if (hit) { hit.value = ''; }
+  var hits = ins.filter(function (i) { return same(i.value, n); });
+  if (on && hits.length) { hits[hits.length - 1].value = ''; }
   else {
     var empty = ins.filter(function (i) { return !i.value.trim(); })[0];
     if (empty) empty.value = n; else addName(n);
@@ -507,8 +565,9 @@ function fillNames(arr) {
 }
 function saveDoneToPom() {
   if (!S.last) return;
-  var k = pk(S.last.kind), added = 0;
-  S.last.names.forEach(function (n) { if (pomAdd(k, n)) added++; });
+  var k = pk(S.last.kind), added = 0, seen = [];
+  // добавляем только то, чего в помяннике ещё нет (с учётом одинаковых имён)
+  S.last.names.forEach(function (n) { seen.push(n); if (cnt(seen, n) > cnt(POM[k], n) && pomAdd(k, n)) added++; });
   $('savePom').textContent = added ? 'Додано в помянник ✓' : 'Ці імена вже є в помяннику';
   $('savePom').disabled = true;
 }
