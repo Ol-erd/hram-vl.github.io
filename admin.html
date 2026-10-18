@@ -128,6 +128,7 @@
   .note .meta { font-size: 14px; color: var(--muted); margin-bottom: 16px; }
   .note ol { list-style: none; padding: 0; margin: 0; font-family: "Old Standard TT", Georgia, serif; }
   .note li { padding: 3px 0; line-height: 1.3; }
+  .note .tag { font: 13px/1 -apple-system, "Segoe UI", Roboto, Arial, sans-serif; color: var(--muted); margin-left: 8px; vertical-align: middle; white-space: nowrap; }
   .ntools { display: flex; gap: 8px; margin-bottom: 10px; }
   .ntools .btn { flex: 1; }
   .back { background: none; border: none; color: var(--gold); padding: 8px 0; font-size: 16px; cursor: pointer; margin-bottom: 4px; }
@@ -224,6 +225,10 @@
       <div class="card">
         <label class="chk"><input type="checkbox" id="sFree"><span>Дозволити подавати записки без пожертви</span></label>
         <p class="legend">Якщо вимкнути, парафіяни бачитимуть лише «Онлайн» і «У церковній лавці».</p>
+      </div>
+      <div class="card">
+        <label class="chk"><input type="checkbox" id="sSor"><span>Приймати сорокоусти</span></label>
+        <p class="legend">Якщо вимкнути, сорокоуст зникне з сайту для парафіян. Уже подані сорокоусти поминатимуться до кінця своїх літургій.</p>
       </div>
       <div class="card">
         <p class="lbl">Звичайний розклад за днями тижня</p>
@@ -438,7 +443,7 @@ function openDay(key) {
 function showNote(g, r) {
   var h = '<div class="cr">☦</div><div class="kind">' + esc(about(g.kind)) + '</div>' +
     '<div class="meta">' + esc(g.treba) + ' · ' + esc(r.label) + ' · ' + g.names.length + ' ' + plural(g.names.length, 'ім’я', 'імені', 'імен') + '</div><ol>';
-  g.names.forEach(function (n) { h += '<li>' + esc(n) + '</li>'; });
+  g.names.forEach(function (n, i) { var t = g.tags && g.tags[i]; h += '<li>' + esc(n) + (t ? '<span class="tag">' + esc(t) + '</span>' : '') + '</li>'; });
   $('note').innerHTML = h + '</ol>';
   applyFont();
   $('notesCal').classList.add('hidden'); $('noteView').classList.remove('hidden');
@@ -530,6 +535,7 @@ function fillSettings() {
   $('sCut').innerHTML = ct;
   $('sAhead').value = s.ahead;
   $('sFree').checked = s.allowFree !== false;
+  $('sSor').checked = s.sorEnabled !== false;
   $('sBank').value = s.bankUrl || ''; $('sCard').value = s.card || ''; $('sCardName').value = s.cardName || '';
   renderFin();
   $('pubLink').textContent = A.url; $('pubLink').href = A.url;
@@ -544,7 +550,7 @@ function drawQr() {
 }
 $('saveSet').onclick = function () {
   var v = { temple: $('sTemple').value, prices: {}, week: W, cutoff: {}, ahead: $('sAhead').value,
-    allowFree: $('sFree').checked };
+    allowFree: $('sFree').checked, sorEnabled: $('sSor').checked };
   [].forEach.call($('sPrices').querySelectorAll('.pr'), function (r) {
     var per = r.querySelector('.pper').value;
     v.prices[r.getAttribute('data-p')] = { price: r.querySelector('.pp').value, per: per, max: per === 'note' ? r.querySelector('.pm').value : 0 };

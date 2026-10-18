@@ -164,10 +164,6 @@ function init() {
   $('go').onclick = submit;
   $('again').onclick = reset;
   if (!CFG.bankUrl && !CFG.card) $('pays').children[0].classList.add('hidden');
-  if (CFG.allowFree === false) {
-    $('pays').children[2].classList.add('hidden');
-    $('softNote').textContent = (CFG.bankUrl || CFG.card) ? 'Пожертву можна внести онлайн або в церковній лавці.' : 'Пожертву можна залишити в церковній лавці.';
-  }
   reset();
 }
 
@@ -202,6 +198,12 @@ function render() {
     b.onclick = function () { S.kind = k; render(); clearErr(); };
     kb.appendChild(b);
   });
+  var noFree = CFG.allowFree === false || treba().noFree;
+  $('pays').children[2].classList.toggle('hidden', !!noFree);
+  if (noFree && S.pay === 'none') S.pay = '';
+  $('softNote').textContent = noFree
+    ? ((CFG.bankUrl || CFG.card) ? 'Пожертву можна внести онлайн або в церковній лавці.' : 'Пожертву можна залишити в церковній лавці.')
+    : 'Записку буде прочитано незалежно від пожертви. Якщо є можливість, підтримайте храм.';
   renderDates(); renderPays(); calc();
 }
 
@@ -224,6 +226,7 @@ function renderDates() {
   var note = cur.long.charAt(0).toUpperCase() + cur.long.slice(1);
   if (cur.title) note += ' · ' + cur.title;
   if (cur.today) note += ' · записки приймаються до ' + cur.today;
+  if (treba().sorokoust) note = 'Початок: ' + note + '. Імена поминатимуть на ' + treba().sorokoust + ' найближчих літургіях.';
   $('dnote').textContent = note;
 }
 
@@ -306,7 +309,8 @@ function submit() {
 function showDone(r, p) {
   $('form').classList.add('hidden'); $('done').classList.remove('hidden');
   $('doneText').innerHTML = esc(treba().name) + ' · ' + esc(about(p.kind).toLowerCase()) + '<br>' +
-    esc(r.dateLabel) + '<br>' + r.count + ' ' + plural(r.count, 'ім’я', 'імені', 'імен');
+    (r.sorCount ? 'Початок: ' + esc(r.dateLabel) + '<br>' + r.sorCount + ' літургій' + (r.sorEnd ? ', останнє поминання орієнтовно: ' + esc(r.sorEnd) : '') : esc(r.dateLabel)) +
+    '<br>' + r.count + ' ' + plural(r.count, 'ім’я', 'імені', 'імен');
   var box = $('payBox'), h = '';
   if (p.pay === 'online') {
     h += '<p>Пожертва: <b>' + r.sum + ' грн</b></p>';
