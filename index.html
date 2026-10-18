@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="uk">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -73,11 +73,11 @@
 </head>
 <body>
 <div class="wrap">
-  <p id="loading" style="text-align:center;color:var(--muted);margin-top:40vh" class="hidden">Загрузка…</p>
+  <p id="loading" style="text-align:center;color:var(--muted);margin-top:40vh" class="hidden">Завантаження…</p>
   <header>
     <div class="cross">☦</div>
     <h1 id="temple">Храм</h1>
-    <p>Подать записку</p>
+    <p>Подати записку</p>
   </header>
 
   <div id="form">
@@ -87,45 +87,45 @@
     </div>
 
     <div class="card">
-      <p class="lbl">О ком</p>
+      <p class="lbl">За кого</p>
       <div class="grid" id="kinds"></div>
     </div>
 
     <div class="card">
       <p class="lbl">Дата</p>
       <div class="dates" id="dates"></div>
-      <button class="link hidden" id="more">Показать ещё даты</button>
+      <button class="link hidden" id="more">Показати ще дати</button>
       <p class="dnote" id="dnote"></p>
     </div>
 
     <div class="card">
-      <p class="lbl">Имена — в родительном падеже, по одному в поле</p>
+      <p class="lbl">Імена — у родовому відмінку, по одному в полі</p>
       <div id="names"></div>
-      <button class="link" id="add">+ Добавить имя</button>
-      <p class="hint">Крещёные имена, без фамилий и отчеств. Можно с пометкой: мл. (младенец), отр. (отрок), нпк. (новопреставленный), бол. (болящий).</p>
+      <button class="link" id="add">+ Додати ім’я</button>
+      <p class="hint">Хрещені імена, без прізвищ і по батькові. Можна з позначкою: нем. (немовля), отр. (отрок), новопрест. (новопреставлений), бол. (болящий).</p>
     </div>
 
     <div class="card">
-      <p class="lbl">Пожертвование на храм</p>
-      <div class="sum"><span id="calc">Обычно жертвуют</span><b id="sum">0 грн</b></div>
-      <p class="soft">Записка будет прочитана независимо от пожертвования. Если есть возможность, поддержите храм.</p>
+      <p class="lbl">Пожертва на храм</p>
+      <div class="sum"><span id="calc">Зазвичай жертвують</span><b id="sum">0 грн</b></div>
+      <p class="soft" id="softNote">Записку буде прочитано незалежно від пожертви. Якщо є можливість, підтримайте храм.</p>
       <div class="pays" id="pays">
-        <button class="chip" data-pay="online">Онлайн <small>банка или карта</small></button>
-        <button class="chip" data-pay="cash">В церковной лавке <small>наличными</small></button>
-        <button class="chip" data-pay="none">Без пожертвования <small></small></button>
+        <button class="chip" data-pay="online">Онлайн <small>банка або картка</small></button>
+        <button class="chip" data-pay="cash">У церковній лавці <small>готівкою</small></button>
+        <button class="chip" data-pay="none">Без пожертви <small></small></button>
       </div>
     </div>
 
-    <button class="main" id="go">Подать записку</button>
+    <button class="main" id="go">Подати записку</button>
     <p class="err" id="err" role="alert"></p>
   </div>
 
   <div id="done" class="card done hidden">
     <div class="big">✓</div>
-    <h2>Записка принята</h2>
+    <h2>Записку прийнято</h2>
     <p id="doneText"></p>
     <div id="payBox"></div>
-    <button class="main ghost" id="again" style="margin-top:14px">Подать ещё записку</button>
+    <button class="main ghost" id="again" style="margin-top:14px">Подати ще записку</button>
   </div>
   <p style="text-align:center;margin:28px 0 0"><a id="adminLink" target="_top" style="color:var(--muted);font-size:13px">Для духовенства</a></p>
 </div>
@@ -164,6 +164,10 @@ function init() {
   $('go').onclick = submit;
   $('again').onclick = reset;
   if (!CFG.bankUrl && !CFG.card) $('pays').children[0].classList.add('hidden');
+  if (CFG.allowFree === false) {
+    $('pays').children[2].classList.add('hidden');
+    $('softNote').textContent = (CFG.bankUrl || CFG.card) ? 'Пожертву можна внести онлайн або в церковній лавці.' : 'Пожертву можна залишити в церковній лавці.';
+  }
   reset();
 }
 
@@ -204,14 +208,14 @@ function render() {
 function renderDates() {
   var ds = treba().dates, box = $('dates'); box.innerHTML = '';
   if (!ds.length) {
-    box.innerHTML = '<p class="hint" style="grid-column:1/-1">Ближайших служб нет.</p>';
+    box.innerHTML = '<p class="hint" style="grid-column:1/-1">Найближчих служб немає.</p>';
     $('more').classList.add('hidden'); $('dnote').textContent = ''; return;
   }
   var shown = S.showAll ? ds : ds.slice(0, 8);
   if (!S.date || !ds.some(function (d) { return d.key === S.date; })) S.date = ds[0].key;
   shown.forEach(function (d) {
     var b = el('button', 'chip date' + (d.title ? ' hol' : '') + (d.key === S.date ? ' on' : ''));
-    b.innerHTML = '<small>' + (d.today ? 'сегодня' : esc(d.dow)) + '</small><b>' + d.day + '</b><small>' + esc(d.mon) + '</small>';
+    b.innerHTML = '<small>' + (d.today ? 'сьогодні' : esc(d.dow)) + '</small><b>' + d.day + '</b><small>' + esc(d.mon) + '</small>';
     b.onclick = function () { S.date = d.key; renderDates(); clearErr(); };
     box.appendChild(b);
   });
@@ -219,7 +223,7 @@ function renderDates() {
   var cur = ds.filter(function (d) { return d.key === S.date; })[0];
   var note = cur.long.charAt(0).toUpperCase() + cur.long.slice(1);
   if (cur.title) note += ' · ' + cur.title;
-  if (cur.today) note += ' · записки принимаются до ' + cur.today;
+  if (cur.today) note += ' · записки приймаються до ' + cur.today;
   $('dnote').textContent = note;
 }
 
@@ -233,10 +237,10 @@ function addName(v, focus) {
   var row = el('div', 'row');
   var i = el('input'); i.type = 'text'; i.maxLength = 60; i.value = v || '';
   i.autocapitalize = 'words'; i.autocomplete = 'off'; i.spellcheck = false;
-  i.placeholder = ['Иоанна', 'Марии', 'мл. Николая', 'Елены', 'Петра'][$('names').children.length % 5];
+  i.placeholder = ['Іоанна', 'Марії', 'нем. Миколая', 'Олени', 'Петра'][$('names').children.length % 5];
   i.oninput = function () { calc(); clearErr(); };
   i.onkeydown = function (e) { if (e.key === 'Enter') { e.preventDefault(); nextField(row); } };
-  var x = el('button', 'x'); x.textContent = '×'; x.setAttribute('aria-label', 'Убрать имя'); x.type = 'button';
+  var x = el('button', 'x'); x.textContent = '×'; x.setAttribute('aria-label', 'Прибрати ім’я'); x.type = 'button';
   x.onclick = function () {
     if ($('names').children.length > 1) row.parentNode.removeChild(row); else i.value = '';
     calc();
@@ -264,15 +268,15 @@ function sumFor(p, n) {
 
 function priceText(p, n) {
   if (p.per === 'name') return n
-    ? 'Обычно жертвуют за ' + n + ' ' + plural(n, 'имя', 'имени', 'имён') + ' (по ' + p.price + ' грн)'
-    : 'Обычно жертвуют по ' + p.price + ' грн за имя';
+    ? 'Зазвичай жертвують за ' + n + ' ' + plural(n, 'ім’я', 'імені', 'імен') + ' (по ' + p.price + ' грн)'
+    : 'Зазвичай жертвують по ' + p.price + ' грн за ім’я';
   if (p.max) {
     var k = Math.max(1, Math.ceil(n / p.max));
     return k > 1
-      ? 'Обычно жертвуют за ' + k + ' ' + plural(k, 'записку', 'записки', 'записок') + ' (по ' + p.price + ' грн, до ' + p.max + ' имён в каждой)'
-      : 'Обычно жертвуют ' + p.price + ' грн за записку (до ' + p.max + ' имён)';
+      ? 'Зазвичай жертвують за ' + k + ' ' + plural(k, 'записку', 'записки', 'записок') + ' (по ' + p.price + ' грн, до ' + p.max + ' імен у кожній)'
+      : 'Зазвичай жертвують ' + p.price + ' грн за записку (до ' + p.max + ' імен)';
   }
-  return 'Обычно жертвуют ' + p.price + ' грн за записку';
+  return 'Зазвичай жертвують ' + p.price + ' грн за записку';
 }
 
 function calc() {
@@ -283,42 +287,42 @@ function calc() {
 
 function submit() {
   if (S.busy) return;
-  if (!S.kind) return err('Выберите: о здравии или об упокоении');
-  if (!S.date) return err('Выберите дату');
-  if (!names().length) return err('Впишите хотя бы одно имя');
-  if (!S.pay) return err('Выберите вариант пожертвования');
+  if (!S.kind) return err('Оберіть: за здоров’я чи за упокій');
+  if (!S.date) return err('Оберіть дату');
+  if (!names().length) return err('Впишіть хоча б одне ім’я');
+  if (!S.pay) return err('Оберіть варіант пожертви');
   var payload = { treba: treba().id, kind: S.kind, date: S.date, names: names(), pay: S.pay };
-  S.busy = true; $('go').disabled = true; $('go').textContent = 'Отправляем…';
+  S.busy = true; $('go').disabled = true; $('go').textContent = 'Надсилаємо…';
   var done = function (r) {
-    S.busy = false; $('go').disabled = false; $('go').textContent = 'Подать записку';
-    if (!r || !r.ok) return err((r && r.error) || 'Не получилось отправить. Попробуйте ещё раз.');
+    S.busy = false; $('go').disabled = false; $('go').textContent = 'Подати записку';
+    if (!r || !r.ok) return err((r && r.error) || 'Не вдалося надіслати. Спробуйте ще раз.');
     showDone(r, payload);
   };
   google.script.run.withSuccessHandler(done)
-    .withFailureHandler(function () { done({ ok: false, error: 'Нет связи. Попробуйте ещё раз.' }); })
+    .withFailureHandler(function () { done({ ok: false, error: 'Немає зв’язку. Спробуйте ще раз.' }); })
     .submitNote(payload);
 }
 
 function showDone(r, p) {
   $('form').classList.add('hidden'); $('done').classList.remove('hidden');
   $('doneText').innerHTML = esc(treba().name) + ' · ' + esc(about(p.kind).toLowerCase()) + '<br>' +
-    esc(r.dateLabel) + '<br>' + r.count + ' ' + plural(r.count, 'имя', 'имени', 'имён');
+    esc(r.dateLabel) + '<br>' + r.count + ' ' + plural(r.count, 'ім’я', 'імені', 'імен');
   var box = $('payBox'), h = '';
   if (p.pay === 'online') {
-    h += '<p>Пожертвование: <b>' + r.sum + ' грн</b></p>';
-    if (CFG.bankUrl) h += '<a class="main" target="_blank" rel="noopener" href="' + esc(CFG.bankUrl) + '">Открыть банку</a>';
+    h += '<p>Пожертва: <b>' + r.sum + ' грн</b></p>';
+    if (CFG.bankUrl) h += '<a class="main" target="_blank" rel="noopener" href="' + esc(CFG.bankUrl) + '">Відкрити банку</a>';
     if (CFG.card) {
-      h += '<p class="soft" style="margin:14px 0 0">' + (CFG.bankUrl ? 'Или переводом на карту' : 'Перевод на карту') +
+      h += '<p class="soft" style="margin:14px 0 0">' + (CFG.bankUrl ? 'Або переказом на картку' : 'Переказ на картку') +
         (CFG.cardName ? ' (' + esc(CFG.cardName) + ')' : '') + ':</p>' +
-        '<div class="copy"><input readonly id="cardNum" value="' + esc(CFG.card) + '"><button id="copyBtn">Копировать</button></div>';
+        '<div class="copy"><input readonly id="cardNum" value="' + esc(CFG.card) + '"><button id="copyBtn">Копіювати</button></div>';
     }
-    h += '<p class="soft">В комментарии можно указать: записка ' + esc(r.id) + '</p>';
+    h += '<p class="soft">У коментарі можна вказати: записка ' + esc(r.id) + '</p>';
   } else if (p.pay === 'cash') {
-    h += '<p>Пожертвование можно оставить в церковной лавке.</p>';
+    h += '<p>Пожертву можна залишити в церковній лавці.</p>';
   } else {
-    h += '<p>Имена будут помянуты за богослужением.</p>';
+    h += '<p>Імена будуть пом’януті за богослужінням.</p>';
   }
-  h += '<p style="font:700 20px/1.3 \'Old Standard TT\',Georgia,serif;margin-top:14px">Спаси Господи!</p>';
+  h += '<p style="font:700 20px/1.3 \'Old Standard TT\',Georgia,serif;margin-top:14px">Спаси, Господи!</p>';
   box.innerHTML = h;
   if ($('copyBtn')) $('copyBtn').onclick = copyCard;
   window.scrollTo(0, 0);
@@ -327,14 +331,14 @@ function showDone(r, p) {
 function copyCard() {
   var i = $('cardNum'), b = $('copyBtn');
   i.focus(); i.select(); i.setSelectionRange(0, 99);
-  var ok = function () { b.textContent = 'Скопировано'; };
+  var ok = function () { b.textContent = 'Скопійовано'; };
   try {
     if (navigator.clipboard) navigator.clipboard.writeText(i.value.replace(/\s/g, '')).then(ok, function () { if (document.execCommand('copy')) ok(); });
     else if (document.execCommand('copy')) ok();
   } catch (e) {}
 }
 
-function about(k) { return (/^[аеиоуэ]/i.test(k) ? 'Об ' : 'О ') + k; }
+function about(k) { return 'За ' + k; }
 function err(m) { $('err').textContent = m; }
 function clearErr() { $('err').textContent = ''; }
 function el(tag, cls) { var e = document.createElement(tag); if (cls) e.className = cls; return e; }
@@ -347,12 +351,12 @@ function boot() {
   if (CFG) return init();
   $('loading').classList.remove('hidden'); $('form').classList.add('hidden');
   google.script.run.withSuccessHandler(function (r) {
-    if (!r || !r.ok) { $('loading').innerHTML = 'Не удалось загрузить. <a href="" style="color:var(--gold)">Обновить</a>'; return; }
+    if (!r || !r.ok) { $('loading').innerHTML = 'Не вдалося завантажити. <a href="" style="color:var(--gold)">Оновити</a>'; return; }
     CFG = r.cfg; CFG.adminUrl = 'admin.html';
     $('loading').classList.add('hidden'); $('form').classList.remove('hidden');
     init();
   }).withFailureHandler(function () {
-    $('loading').innerHTML = 'Нет связи. <a href="" style="color:var(--gold)">Обновить</a>';
+    $('loading').innerHTML = 'Немає зв’язку. <a href="" style="color:var(--gold)">Оновити</a>';
   }).publicConfig();
 }
 

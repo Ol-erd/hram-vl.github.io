@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="uk">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -88,6 +88,8 @@
   .tt input { height: 42px; padding: 0 4px; font-size: 16px; text-align: center; }
   .f2 { display: grid; grid-template-columns: 1fr 110px; gap: 8px; align-items: center; margin-bottom: 8px; }
   .fld { margin-bottom: 10px; }
+  .chk { display: flex; gap: 12px; align-items: center; font-size: 16px; cursor: pointer; }
+  .chk input { width: 24px; height: 24px; accent-color: var(--gold); flex: 0 0 auto; }
   .pr { padding: 10px 0; border-bottom: 1px solid var(--line); } .pr:last-child { border-bottom: none; }
   .pr b { display: block; font-weight: 600; margin-bottom: 6px; }
   .prr { display: flex; gap: 8px; align-items: center; font-size: 15px; color: var(--muted); }
@@ -121,11 +123,11 @@
   <!-- Вход -->
   <div id="login" class="hidden" style="max-width:340px;margin:40px auto 0;text-align:center">
     <div style="font-size:30px;color:var(--gold)">☦</div>
-    <h1 id="loginTitle">Вход для духовенства</h1>
-    <p class="sub" id="loginSub">Введите PIN-код</p>
+    <h1 id="loginTitle">Вхід для духовенства</h1>
+    <p class="sub" id="loginSub">Введіть PIN-код</p>
     <input type="password" inputmode="numeric" id="pin" maxlength="8" autocomplete="current-password" style="text-align:center;font-size:24px;letter-spacing:.3em">
-    <input type="password" inputmode="numeric" id="pin2" maxlength="8" class="hidden" placeholder="ещё раз" style="text-align:center;font-size:24px;letter-spacing:.3em;margin-top:8px">
-    <button class="main" id="loginBtn" style="margin-top:12px">Войти</button>
+    <input type="password" inputmode="numeric" id="pin2" maxlength="8" class="hidden" placeholder="ще раз" style="text-align:center;font-size:24px;letter-spacing:.3em;margin-top:8px">
+    <button class="main" id="loginBtn" style="margin-top:12px">Увійти</button>
     <p class="err" id="loginErr"></p>
   </div>
 
@@ -134,17 +136,17 @@
     <section id="tabNotes">
       <div id="notesCal">
         <h1>Записки</h1>
-        <p class="sub">Выберите дату — цифра показывает, сколько имён подано</p>
-        <div class="card"><div class="mhead"><button data-m="-1" aria-label="Предыдущий месяц">‹</button><b class="mt"></b><button data-m="1" aria-label="Следующий месяц">›</button></div>
+        <p class="sub">Оберіть дату — число показує, скільки імен подано</p>
+        <div class="card"><div class="mhead"><button data-m="-1" aria-label="Попередній місяць">‹</button><b class="mt"></b><button data-m="1" aria-label="Наступний місяць">›</button></div>
           <div class="cal" id="calNotes"></div></div>
         <div id="dayList"></div>
       </div>
       <div id="noteView" class="hidden">
         <button class="back" id="noteBack">‹ Назад</button>
         <div class="ntools">
-          <button class="btn" id="fMinus" aria-label="Мельче">A−</button>
-          <button class="btn" id="fPlus" aria-label="Крупнее">A+</button>
-          <button class="btn" id="printBtn">Печать</button>
+          <button class="btn" id="fMinus" aria-label="Дрібніше">A−</button>
+          <button class="btn" id="fPlus" aria-label="Більше">A+</button>
+          <button class="btn" id="printBtn">Друк</button>
         </div>
         <div class="note" id="note"></div>
       </div>
@@ -152,53 +154,57 @@
 
     <!-- Расписание -->
     <section id="tabSched" class="hidden">
-      <h1>Расписание</h1>
-      <p class="sub">Нажмите на день, чтобы поставить или убрать службу</p>
-      <div class="card"><div class="mhead"><button data-m="-1" aria-label="Предыдущий месяц">‹</button><b class="mt"></b><button data-m="1" aria-label="Следующий месяц">›</button></div>
+      <h1>Розклад</h1>
+      <p class="sub">Натисніть на день, щоб поставити або прибрати службу</p>
+      <div class="card"><div class="mhead"><button data-m="-1" aria-label="Попередній місяць">‹</button><b class="mt"></b><button data-m="1" aria-label="Наступний місяць">›</button></div>
         <div class="cal" id="calSched"></div>
-        <p class="legend"><span class="mk" style="display:inline-block">Л</span> литургия · <span class="mk" style="display:inline-block">М</span> молебен · <span class="mk" style="display:inline-block">П</span> панихида · пунктир — изменено вручную</p>
+        <p class="legend"><span class="mk" style="display:inline-block">Л</span> літургія · <span class="mk" style="display:inline-block">М</span> молебень · <span class="mk" style="display:inline-block">П</span> панахида · пунктир — змінено вручну</p>
       </div>
       <div class="card hidden" id="dayEdit"></div>
     </section>
 
     <!-- Настройки -->
     <section id="tabSet" class="hidden">
-      <h1>Настройки</h1>
-      <p class="sub">Изменения сразу видны прихожанам</p>
+      <h1>Налаштування</h1>
+      <p class="sub">Зміни одразу бачать парафіяни</p>
       <div class="card">
-        <div class="fld"><label>Название храма</label><input type="text" id="sTemple" maxlength="120"></div>
+        <div class="fld"><label>Назва храму</label><input type="text" id="sTemple" maxlength="120"></div>
       </div>
       <div class="card">
-        <p class="lbl">Рекомендуемое пожертвование</p>
+        <p class="lbl">Рекомендована пожертва</p>
         <div id="sPrices"></div>
       </div>
       <div class="card">
-        <p class="lbl">Обычное расписание по дням недели</p>
+        <label class="chk"><input type="checkbox" id="sFree"><span>Дозволити подавати записки без пожертви</span></label>
+        <p class="legend">Якщо вимкнути, парафіяни бачитимуть лише «Онлайн» і «У церковній лавці».</p>
+      </div>
+      <div class="card">
+        <p class="lbl">Звичайний розклад за днями тижня</p>
         <div class="wk" id="sWeek"></div>
-        <p class="legend">Праздники и исключения ставятся во вкладке «Расписание».</p>
+        <p class="legend">Свята та винятки ставляться у вкладці «Розклад».</p>
       </div>
       <div class="card">
-        <p class="lbl">Записки на сегодня принимаются до</p>
+        <p class="lbl">Записки на сьогодні приймаються до</p>
         <div class="tt" id="sCut"></div>
-        <div class="f2" style="margin-top:12px"><span>Показывать дат вперёд, дней</span><input type="number" id="sAhead" min="1" max="120"></div>
+        <div class="f2" style="margin-top:12px"><span>Показувати дати наперед, днів</span><input type="number" id="sAhead" min="1" max="120"></div>
       </div>
       <div class="card">
-        <p class="lbl">Онлайн-пожертвование</p>
-        <div class="fld"><label>Ссылка на банку (Monobank и т. п.)</label><input type="text" id="sBank" placeholder="https://send.monobank.ua/jar/…" inputmode="url"></div>
-        <div class="fld"><label>Номер карты</label><input type="text" id="sCard" placeholder="5375 4141 0000 0000" inputmode="numeric"></div>
-        <div class="fld"><label>Получатель (как подписать карту)</label><input type="text" id="sCardName" placeholder="Приход храма …"></div>
-        <p class="legend">Если оба поля пустые, вариант «Онлайн» прихожанам не показывается.</p>
+        <p class="lbl">Онлайн-пожертва</p>
+        <div class="fld"><label>Посилання на банку (Monobank тощо)</label><input type="text" id="sBank" placeholder="https://send.monobank.ua/jar/…" inputmode="url"></div>
+        <div class="fld"><label>Номер картки</label><input type="text" id="sCard" placeholder="5375 4141 0000 0000" inputmode="numeric"></div>
+        <div class="fld"><label>Отримувач (як підписати картку)</label><input type="text" id="sCardName" placeholder="Парафія храму …"></div>
+        <p class="legend">Якщо обидва поля порожні, варіант «Онлайн» парафіянам не показується.</p>
       </div>
       <div class="card">
-        <div class="fld"><label>Новый PIN (если нужно сменить)</label><input type="password" inputmode="numeric" id="sPin" maxlength="8" autocomplete="new-password"></div>
+        <div class="fld"><label>Новий PIN (якщо потрібно змінити)</label><input type="password" inputmode="numeric" id="sPin" maxlength="8" autocomplete="new-password"></div>
       </div>
-      <button class="main" id="saveSet">Сохранить настройки</button>
+      <button class="main" id="saveSet">Зберегти налаштування</button>
       <p class="err" id="setErr"></p><p class="okmsg" id="setOk"></p>
       <div class="card" style="text-align:center;margin-top:14px">
-        <p class="lbl">Ссылка для прихожан</p>
+        <p class="lbl">Посилання для парафіян</p>
         <p style="word-break:break-all;font-size:14px;margin:0 0 10px"><a id="pubLink" target="_blank" style="color:var(--gold)"></a></p>
         <div id="qr"></div>
-        <p class="legend">QR-код можно сохранить долгим нажатием и распечатать.</p>
+        <p class="legend">QR-код можна зберегти довгим натисканням і роздрукувати.</p>
       </div>
     </section>
   </div>
@@ -206,8 +212,8 @@
 
 <nav class="tabs hidden" id="tabs">
   <button data-tab="tabNotes" class="on"><b>☰</b>Записки</button>
-  <button data-tab="tabSched"><b>▦</b>Расписание</button>
-  <button data-tab="tabSet"><b>⚙</b>Настройки</button>
+  <button data-tab="tabSched"><b>▦</b>Розклад</button>
+  <button data-tab="tabSet"><b>⚙</b>Налаштування</button>
 </nav>
 
 <script>
@@ -231,17 +237,17 @@ window.google = { script: { run: (function mk(ok, fail) {
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
 <script>
 var $ = function (id) { return document.getElementById(id); };
-var MON = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'];
-var WD = ['пн', 'вт', 'ср', 'чт', 'пт', 'сб', 'вс'];
+var MON = ['Січень', 'Лютий', 'Березень', 'Квітень', 'Травень', 'Червень', 'Липень', 'Серпень', 'Вересень', 'Жовтень', 'Листопад', 'Грудень'];
+var WD = ['пн', 'вт', 'ср', 'чт', 'пт', 'сб', 'нд'];
 var SH = { lit: 'Л', mol: 'М', pan: 'П' };
 var A = { pin: '', today: '', ym: '', month: {}, sel: '', settings: null, services: [], trebas: [], tab: 'tabNotes', font: 28 };
 
 /* ── связь с сервером ── */
 function call(fn, args, ok) {
   var r = google.script.run.withSuccessHandler(function (res) {
-    if (res && res.relogin) { forget(); showLogin(false, 'Войдите снова'); return; }
+    if (res && res.relogin) { forget(); showLogin(false, 'Увійдіть знову'); return; }
     ok(res);
-  }).withFailureHandler(function () { ok({ ok: false, error: 'Нет связи. Попробуйте ещё раз.' }); });
+  }).withFailureHandler(function () { ok({ ok: false, error: 'Немає зв’язку. Спробуйте ще раз.' }); });
   r[fn].apply(r, args);
 }
 function remember(p) { try { localStorage.setItem('zpin', p); } catch (e) {} }
@@ -254,21 +260,21 @@ var firstRun = false;
 function showLogin(isFirst, msg) {
   firstRun = !!isFirst;
   $('app').classList.add('hidden'); $('tabs').classList.add('hidden'); $('login').classList.remove('hidden');
-  $('loginTitle').textContent = isFirst ? 'Первый вход' : 'Вход для духовенства';
-  $('loginSub').textContent = isFirst ? 'Придумайте PIN-код (4–8 цифр) и сообщите его батюшкам и пономарям' : 'Введите PIN-код';
+  $('loginTitle').textContent = isFirst ? 'Перший вхід' : 'Вхід для духовенства';
+  $('loginSub').textContent = isFirst ? 'Придумайте PIN-код (4–8 цифр) і повідомте його священникам і паламарям' : 'Введіть PIN-код';
   $('pin2').classList.toggle('hidden', !isFirst);
-  $('loginBtn').textContent = isFirst ? 'Сохранить PIN' : 'Войти';
+  $('loginBtn').textContent = isFirst ? 'Зберегти PIN' : 'Увійти';
   $('loginErr').textContent = msg || '';
   $('pin').value = ''; $('pin2').value = ''; $('pin').focus();
 }
 function doLogin() {
   var p = $('pin').value.trim();
-  if (!/^\d{4,8}$/.test(p)) { $('loginErr').textContent = 'PIN — от 4 до 8 цифр'; return; }
-  if (firstRun && p !== $('pin2').value.trim()) { $('loginErr').textContent = 'PIN-коды не совпадают'; return; }
+  if (!/^\d{4,8}$/.test(p)) { $('loginErr').textContent = 'PIN — від 4 до 8 цифр'; return; }
+  if (firstRun && p !== $('pin2').value.trim()) { $('loginErr').textContent = 'PIN-коди не збігаються'; return; }
   $('loginBtn').disabled = true;
   call(firstRun ? 'clergySetPin' : 'clergyLogin', [p], function (r) {
     $('loginBtn').disabled = false;
-    if (!r.ok) { $('loginErr').textContent = r.error || 'Ошибка'; return; }
+    if (!r.ok) { $('loginErr').textContent = r.error || 'Помилка'; return; }
     A.pin = p; remember(p); start(r);
   });
 }
@@ -348,7 +354,7 @@ function drawCal(box, mode) {
 function openDay(key) {
   A.sel = key; renderCals();
   var box = $('dayList');
-  box.innerHTML = '<div class="card"><p class="sub" style="margin:0">Загрузка…</p></div>';
+  box.innerHTML = '<div class="card"><p class="sub" style="margin:0">Завантаження…</p></div>';
   call('clergyList', [A.pin, key], function (r) {
     if (!r.ok) { box.innerHTML = ''; return; }
     A.list = r;
@@ -360,7 +366,7 @@ function openDay(key) {
       h += '<button class="grp' + (g.names.length ? '' : ' empty') + '" data-g="' + i + '"><span>' + esc(g.treba) +
         '<small>' + esc(about(g.kind).toLowerCase()) + '</small></span><span class="cnt">' + g.names.length + '</span></button>';
     });
-    h += '</div>' + (any ? '' : '<p class="sub" style="margin:10px 0 0">На этот день записок пока нет.</p>') + '</div>';
+    h += '</div>' + (any ? '' : '<p class="sub" style="margin:10px 0 0">На цей день записок поки немає.</p>') + '</div>';
     box.innerHTML = h;
     [].forEach.call(box.querySelectorAll('.grp'), function (b) {
       b.onclick = function () { var g = r.groups[Number(b.getAttribute('data-g'))]; if (g.names.length) showNote(g, r); };
@@ -369,7 +375,7 @@ function openDay(key) {
 }
 function showNote(g, r) {
   var h = '<div class="cr">☦</div><div class="kind">' + esc(about(g.kind)) + '</div>' +
-    '<div class="meta">' + esc(g.treba) + ' · ' + esc(r.label) + ' · ' + g.names.length + ' ' + plural(g.names.length, 'имя', 'имени', 'имён') + '</div><ol>';
+    '<div class="meta">' + esc(g.treba) + ' · ' + esc(r.label) + ' · ' + g.names.length + ' ' + plural(g.names.length, 'ім’я', 'імені', 'імен') + '</div><ol>';
   g.names.forEach(function (n) { h += '<li>' + esc(n) + '</li>'; });
   $('note').innerHTML = h + '</ol>';
   applyFont();
@@ -391,13 +397,13 @@ function renderDayEdit() {
   box.classList.remove('hidden');
   var v = { lit: info.lit, mol: info.mol, pan: info.pan };
   var h = '<h1 style="font-size:19px">' + esc(cap(longLabel(key))) + '</h1><p class="sub" style="margin:0 0 10px">' +
-    (info.names ? 'Подано имён: ' + info.names : 'Записок пока нет') + '</p><div class="svcs">';
+    (info.names ? 'Подано імен: ' + info.names : 'Записок поки немає') + '</p><div class="svcs">';
   A.services.forEach(function (s) {
     h += '<button class="tog' + (v[s.id] ? ' on' : '') + '" data-s="' + s.id + '"><span>' + esc(s.name) + '</span><span class="sw"></span></button>';
   });
-  h += '</div><div class="fld" style="margin-top:12px"><label>Праздник (необязательно)</label><input type="text" id="dTitle" maxlength="60" placeholder="Покров Пресвятой Богородицы"></div>' +
-    '<button class="main" id="dSave">Сохранить</button>' +
-    (info.changed ? '<button class="btn" id="dReset" style="width:100%;margin-top:8px">Вернуть как обычно</button>' : '') +
+  h += '</div><div class="fld" style="margin-top:12px"><label>Свято (необов’язково)</label><input type="text" id="dTitle" maxlength="60" placeholder="Покрова Пресвятої Богородиці"></div>' +
+    '<button class="main" id="dSave">Зберегти</button>' +
+    (info.changed ? '<button class="btn" id="dReset" style="width:100%;margin-top:8px">Повернути як зазвичай</button>' : '') +
     '<p class="err" id="dErr"></p>';
   box.innerHTML = h;
   $('dTitle').value = info.title || '';
@@ -405,12 +411,12 @@ function renderDayEdit() {
     b.onclick = function () { var s = b.getAttribute('data-s'); v[s] = !v[s]; b.classList.toggle('on', v[s]); };
   });
   var save = function (val) {
-    $('dSave').disabled = true; $('dSave').textContent = 'Сохраняем…';
+    $('dSave').disabled = true; $('dSave').textContent = 'Зберігаємо…';
     call('clergySaveDay', [A.pin, key, val], function (r) {
-      if (!r.ok) { $('dSave').disabled = false; $('dSave').textContent = 'Сохранить'; $('dErr').textContent = r.error || 'Ошибка'; return; }
+      if (!r.ok) { $('dSave').disabled = false; $('dSave').textContent = 'Зберегти'; $('dErr').textContent = r.error || 'Помилка'; return; }
       A.month = r.days; renderCals(); renderDayEdit();
-      $('dSave').textContent = 'Сохранено ✓';
-      setTimeout(function () { if ($('dSave')) $('dSave').textContent = 'Сохранить'; }, 1500);
+      $('dSave').textContent = 'Збережено ✓';
+      setTimeout(function () { if ($('dSave')) $('dSave').textContent = 'Зберегти'; }, 1500);
     });
   };
   $('dSave').onclick = function () { save({ lit: v.lit, mol: v.mol, pan: v.pan, title: $('dTitle').value }); };
@@ -430,9 +436,9 @@ function fillSettings() {
     var x = s.prices[t.id]; if (typeof x === 'number') x = { price: x, per: 'name', max: 0 };
     p += '<div class="pr" data-p="' + t.id + '"><b>' + esc(t.name) + '</b><div class="prr">' +
       '<input type="number" min="0" step="1" class="pp" value="' + (x.price || 0) + '"><span>грн за</span>' +
-      '<select class="pper"><option value="name"' + (x.per === 'name' ? ' selected' : '') + '>имя</option>' +
+      '<select class="pper"><option value="name"' + (x.per === 'name' ? ' selected' : '') + '>ім’я</option>' +
       '<option value="note"' + (x.per === 'note' ? ' selected' : '') + '>записку</option></select></div>' +
-      '<div class="prr pmax' + (x.per === 'note' ? '' : ' hidden') + '"><span>до скольки имён в одной записке (пусто — без ограничения)</span>' +
+      '<div class="prr pmax' + (x.per === 'note' ? '' : ' hidden') + '"><span>до скількох імен в одній записці (порожньо — без обмеження)</span>' +
       '<input type="number" min="0" max="100" step="1" class="pm" value="' + (x.max || '') + '" placeholder="—"></div></div>';
   });
   $('sPrices').innerHTML = p;
@@ -454,26 +460,28 @@ function fillSettings() {
       b.classList.toggle('on', i < 0);
     };
   });
-  var ct = '<span></span><span class="c">будни</span><span class="c">суббота</span><span class="c">воскресенье</span>';
+  var ct = '<span></span><span class="c">будні</span><span class="c">субота</span><span class="c">неділя</span>';
   A.services.forEach(function (sv) {
     ct += '<span>' + esc(sv.name) + '</span>';
     ['wd', 'sat', 'sun'].forEach(function (k) { ct += '<input type="text" inputmode="numeric" maxlength="5" placeholder="08:30" data-s="' + sv.id + '" data-k="' + k + '" value="' + s.cutoff[sv.id][k] + '">'; });
   });
   $('sCut').innerHTML = ct;
   $('sAhead').value = s.ahead;
+  $('sFree').checked = s.allowFree !== false;
   $('sBank').value = s.bankUrl || ''; $('sCard').value = s.card || ''; $('sCardName').value = s.cardName || '';
   $('pubLink').textContent = A.url; $('pubLink').href = A.url;
   drawQr();
 }
 function drawQr() {
   if (!A.url) { $('qr').innerHTML = ''; return; }
-  if (!window.qrcode) { $('qr').innerHTML = '<p class="legend">QR-код не загрузился — обновите страницу.</p>'; return; }
+  if (!window.qrcode) { $('qr').innerHTML = '<p class="legend">QR-код не завантажився — оновіть сторінку.</p>'; return; }
   var q = qrcode(0, 'M'); q.addData(A.url); q.make();
-  $('qr').innerHTML = '<img alt="QR-код ссылки для прихожан" src="' + q.createDataURL(8, 2) + '">';
+  $('qr').innerHTML = '<img alt="QR-код посилання для парафіян" src="' + q.createDataURL(8, 2) + '">';
 }
 $('saveSet').onclick = function () {
   var v = { temple: $('sTemple').value, prices: {}, week: W, cutoff: {}, ahead: $('sAhead').value,
-    bankUrl: $('sBank').value, card: $('sCard').value, cardName: $('sCardName').value, newPin: $('sPin').value.trim() };
+    bankUrl: $('sBank').value, card: $('sCard').value, cardName: $('sCardName').value, newPin: $('sPin').value.trim(),
+    allowFree: $('sFree').checked };
   [].forEach.call($('sPrices').querySelectorAll('.pr'), function (r) {
     var per = r.querySelector('.pper').value;
     v.prices[r.getAttribute('data-p')] = { price: r.querySelector('.pp').value, per: per, max: per === 'note' ? r.querySelector('.pm').value : 0 };
@@ -485,19 +493,19 @@ $('saveSet').onclick = function () {
   $('saveSet').disabled = true;
   call('clergySaveSettings', [A.pin, v], function (r) {
     $('saveSet').disabled = false;
-    if (!r.ok) { $('setErr').textContent = r.error || 'Ошибка'; return; }
+    if (!r.ok) { $('setErr').textContent = r.error || 'Помилка'; return; }
     if (v.newPin) { A.pin = v.newPin; remember(v.newPin); $('sPin').value = ''; }
-    A.settings = r.settings; $('setOk').textContent = 'Сохранено';
+    A.settings = r.settings; $('setOk').textContent = 'Збережено';
     loadMonth();
   });
 };
 
 /* ── мелочи ── */
-var DOWF = ['воскресенье', 'понедельник', 'вторник', 'среда', 'четверг', 'пятница', 'суббота'];
-var MONG = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'];
+var DOWF = ['неділя', 'понеділок', 'вівторок', 'середа', 'четвер', 'п’ятниця', 'субота'];
+var MONG = ['січня', 'лютого', 'березня', 'квітня', 'травня', 'червня', 'липня', 'серпня', 'вересня', 'жовтня', 'листопада', 'грудня'];
 function longLabel(k) { var d = new Date(k + 'T00:00:00Z'); return DOWF[d.getUTCDay()] + ', ' + d.getUTCDate() + ' ' + MONG[d.getUTCMonth()]; }
 function cap(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
-function about(k) { return (/^[аеиоуэ]/i.test(k) ? 'Об ' : 'О ') + k; }
+function about(k) { return 'За ' + k; }
 function el(tag, cls) { var e = document.createElement(tag); if (cls) e.className = cls; return e; }
 function esc(s) { return String(s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
 function plural(n, a, b, c) { var m = n % 10, h = n % 100; return m === 1 && h !== 11 ? a : m >= 2 && m <= 4 && (h < 12 || h > 14) ? b : c; }
@@ -511,7 +519,7 @@ function plural(n, a, b, c) { var m = n % 10, h = n % 100; return m === 1 && h !
   }
   call('clergyLogin', [p], function (r) {
     if (r.ok) { A.pin = p; start(r); }
-    else showLogin(!!r.needPin, r.needPin ? '' : 'Войдите снова');
+    else showLogin(!!r.needPin, r.needPin ? '' : 'Увійдіть знову');
   });
 })();
 </script>
