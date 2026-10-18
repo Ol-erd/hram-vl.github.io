@@ -272,7 +272,7 @@ function doLogin() {
   if (!/^\d{4,8}$/.test(p)) { $('loginErr').textContent = 'PIN — від 4 до 8 цифр'; return; }
   if (firstRun && p !== $('pin2').value.trim()) { $('loginErr').textContent = 'PIN-коди не збігаються'; return; }
   $('loginBtn').disabled = true;
-  call(firstRun ? 'clergySetPin' : 'clergyLogin', [p], function (r) {
+  call(firstRun ? 'clergySetPin' : 'clergyLogin', [p, window.PUBLIC_URL || ''], function (r) {
     $('loginBtn').disabled = false;
     if (!r.ok) { $('loginErr').textContent = r.error || 'Помилка'; return; }
     A.pin = p; remember(p); start(r);
@@ -283,6 +283,7 @@ $('pin').onkeydown = $('pin2').onkeydown = function (e) { if (e.key === 'Enter')
 
 function start(r) {
   A.settings = r.settings; A.services = r.services; A.trebas = r.trebas; A.today = r.today; A.url = window.PUBLIC_URL || r.url;
+  A.isExec = /script\.google/.test(A.url);
   A.ym = r.today.slice(0, 7); A.sel = r.today;
   $('login').classList.add('hidden'); $('app').classList.remove('hidden'); $('tabs').classList.remove('hidden');
   fillSettings(); loadMonth(function () { openDay(A.today); });
@@ -476,7 +477,8 @@ function drawQr() {
   if (!A.url) { $('qr').innerHTML = ''; return; }
   if (!window.qrcode) { $('qr').innerHTML = '<p class="legend">QR-код не завантажився — оновіть сторінку.</p>'; return; }
   var q = qrcode(0, 'M'); q.addData(A.url); q.make();
-  $('qr').innerHTML = '<img alt="QR-код посилання для парафіян" src="' + q.createDataURL(8, 2) + '">';
+  $('qr').innerHTML = '<img alt="QR-код посилання для парафіян" src="' + q.createDataURL(8, 2) + '">' +
+    (A.isExec ? '<p class="legend" style="color:var(--err)">Це запасне посилання Google. Для QR-коду відкрийте цю сторінку з сайту на GitHub — тоді тут з’явиться його адреса.</p>' : '');
 }
 $('saveSet').onclick = function () {
   var v = { temple: $('sTemple').value, prices: {}, week: W, cutoff: {}, ahead: $('sAhead').value,
@@ -514,10 +516,10 @@ function plural(n, a, b, c) { var m = n % 10, h = n % 100; return m === 1 && h !
 (function boot() {
   var p = stored();
   if (!p) {
-    call('clergyLogin', [''], function (r) { showLogin(!!r.needPin); });
+    call('clergyLogin', ['', window.PUBLIC_URL || ''], function (r) { showLogin(!!r.needPin); });
     return;
   }
-  call('clergyLogin', [p], function (r) {
+  call('clergyLogin', [p, window.PUBLIC_URL || ''], function (r) {
     if (r.ok) { A.pin = p; start(r); }
     else showLogin(!!r.needPin, r.needPin ? '' : 'Увійдіть знову');
   });
