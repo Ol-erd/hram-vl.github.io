@@ -148,6 +148,13 @@
   .ntools .btn { flex: 1; }
   .back { background: none; border: none; color: var(--gold); padding: 8px 0; font-size: 16px; cursor: pointer; margin-bottom: 4px; }
   .hidden { display: none !important; }
+  .pv { position: fixed; inset: 0; z-index: 50; background: rgba(0,0,0,.85); overflow-y: auto; -webkit-overflow-scrolling: touch;
+    padding: calc(env(safe-area-inset-top) + 12px) 12px calc(env(safe-area-inset-bottom) + 90px); }
+  .pv img { display: block; width: 100%; max-width: 600px; margin: 0 auto 12px; background: #fff; border-radius: 4px; }
+  .pv .pvbar { position: fixed; left: 0; right: 0; bottom: 0; display: flex; gap: 8px; padding: 12px 12px calc(env(safe-area-inset-bottom) + 12px); background: var(--bg); }
+  .pv .pvbar button { flex: 1; min-height: 50px; border-radius: 10px; font-size: 17px; border: 1px solid var(--line); background: var(--card); color: var(--text); cursor: pointer; }
+  .pv .pvbar .go { background: var(--red); color: var(--on-red); border-color: var(--red); font-weight: 600; }
+  .pv p { color: #ddd; text-align: center; font-size: 14px; margin: 0 0 12px; }
   @media print {
     body { background: #fff; } .tabs, .ntools, .back, .noprint { display: none !important; }
     .wrap { padding: 0; max-width: none; } .note { border: none; background: #fff; color: #000; }
@@ -489,11 +496,16 @@ function hideName(uid, hide) {
   var x = from.filter(function (y) { return y.uid === uid; })[0];
   if (!x) return;
   if (hide && !confirm('Прибрати «' + x.n + '» зі списку?' + (x.tag ? '\n\nЦе сорокоуст — ім’я буде прибрано з усіх наступних поминань.' : ''))) return;
-  call('clergyHide', [A.pin, uid, hide], function (res) {
-    if (!res.ok) { alert(res.error || 'Помилка'); return; }
-    from.splice(from.indexOf(x), 1); to.push(x);
-    g.names.sort(function (a, b) { return (a.free ? 1 : 0) - (b.free ? 1 : 0) || a.o - b.o; });
-    var y = window.scrollY; showNote(g, A.cur.r); window.scrollTo(0, y);
+  call('clergyHide', [A.pin, uid, hide, x.n], function (res) {
+    if (!res.ok) alert(res.error || 'Помилка');
+    // після зміни перечитуємо список із таблиці — показуємо те, що там насправді
+    var y = window.scrollY, r0 = A.cur.r;
+    call('clergyList', [A.pin, r0.key], function (r) {
+      if (!r.ok) return;
+      A.list = r;
+      var ng = r.groups.filter(function (z) { return z.treba === g.treba && z.kind === g.kind; })[0];
+      if (ng) { showNote(ng, r); window.scrollTo(0, y); }
+    });
     loadMonth();
   });
 }
@@ -502,7 +514,98 @@ function applyFont() { [].forEach.call($('note').querySelectorAll('ol'), functio
 $('noteBack').onclick = closeNote;
 $('fMinus').onclick = function () { A.font = Math.max(18, A.font - 4); applyFont(); };
 $('fPlus').onclick = function () { A.font = Math.min(56, A.font + 4); applyFont(); };
-$('printBtn').onclick = function () { window.print(); };
+$('printBtn').onclick = function () {
+  var g = A.cur.g, r = A.cur.r, B = [{ t: 'cross' }, { t: 'h1', s: about(g.kind), c: 'red' },
+    { t: 'sub', s: g.treba + ' · ' + r.label + ' · ' + g.names.length + ' ' + plural(g.names.length, 'ім’я', 'імені', 'імен'), c: 'center' }];
+  var paid = g.names.filter(function (x) { return !x.free; }), free = g.names.filter(function (x) { return x.free; });
+  var two = g.names.length > 16;   // довгий список — у дві колонки, щоб менше паперу
+  var put = function (arr) { B.push({ t: 'names', two: two, items: arr.map(function (x, i) { return { n: (i + 1) + '.', s: x.n, tag: x.tag || '' }; }) }); };
+  if (paid.length) { B.push({ t: 'sec', s: 'З пожертвою · ' + paid.length }); put(paid); }
+  if (free.length) { B.push({ t: 'sec', s: 'Без пожертви · ' + free.length }); put(free); }
+  doPrint(B, 'zapyska');
+};
+
+/* ── друк: у застосунку з головного екрана iPhone window.print() не працює,
+   тому там малюємо сторінки A4 картинками і віддаємо в меню «Поділитися» → «Друк» ── */
+function isIosApp() { return window.navigator.standalone === true; }
+function doPrint(blocks, name) {
+  if (!isIosApp()) { window.print(); return; }
+  var pages = drawPages(blocks), files = [];
+  var ov = document.createElement('div'); ov.className = 'pv';
+  ov.innerHTML = '<p>Натисніть «Друк / Поділитися», далі в меню оберіть «Друкувати» (або надішліть файл).</p>';
+  pages.forEach(function (c) { var im = new Image(); im.src = c.toDataURL('image/png'); ov.appendChild(im); });
+  var bar = document.createElement('div'); bar.className = 'pvbar';
+  bar.innerHTML = '<button type="button" class="x">Закрити</button><button type="button" class="go">Друк / Поділитися</button>';
+  ov.appendChild(bar); document.body.appendChild(ov); document.body.style.overflow = 'hidden';
+  var close = function () { document.body.removeChild(ov); document.body.style.overflow = ''; };
+  bar.querySelector('.x').onclick = close;
+  var go = bar.querySelector('.go'); go.disabled = true;
+  var left = pages.length;
+  pages.forEach(function (c, i) {
+    c.toBlob(function (b) {
+      files[i] = new File([b], name + (pages.length > 1 ? '-' + (i + 1) : '') + '.png', { type: 'image/png' });
+      if (!--left) go.disabled = false;
+    }, 'image/png');
+  });
+  go.onclick = function () {
+    if (navigator.canShare && navigator.canShare({ files: files })) {
+      navigator.share({ files: files }).catch(function () {});
+    } else {
+      alert('Цей телефон не дає поділитися файлом. Натисніть і утримуйте сторінку — «Зберегти зображення», потім надрукуйте з «Фото».');
+    }
+  };
+}
+function drawPages(B) {
+  var W = 1240, H = 1754, M = 100, pages = [], c, x, y;
+  var SANS = '-apple-system, "Segoe UI", Roboto, Arial, sans-serif', SERIF = 'Georgia, "Times New Roman", serif';
+  var page = function () {
+    c = document.createElement('canvas'); c.width = W; c.height = H; x = c.getContext('2d');
+    x.fillStyle = '#fff'; x.fillRect(0, 0, W, H); x.textBaseline = 'alphabetic'; pages.push(c); y = M;
+  };
+  var need = function (h) { if (y + h > H - M) page(); };
+  var fit = function (s, max) { while (x.measureText(s).width > max && s.length > 1) s = s.slice(0, -2) + '…'; return s; };
+  var cols = [W - M - 480, W - M - 300, W - M]; // правые края колонок таблицы
+  page();
+  B.forEach(function (b) {
+    if (b.t === 'cross') { need(80); x.fillStyle = '#a32a1b'; x.font = '64px ' + SERIF; x.textAlign = 'center'; x.fillText('☦', W / 2, y + 60); y += 90; }
+    else if (b.t === 'h1') { need(70); x.fillStyle = b.c === 'red' ? '#a32a1b' : '#111'; x.font = '700 50px ' + SERIF; x.textAlign = b.c === 'red' ? 'center' : 'left';
+      x.fillText(b.s, b.c === 'red' ? W / 2 : M, y + 50); y += 72; }
+    else if (b.t === 'sub') { need(50); x.fillStyle = '#555'; x.font = '30px ' + SANS; x.textAlign = b.c === 'center' ? 'center' : 'left';
+      x.fillText(fit(b.s, W - 2 * M), b.c === 'center' ? W / 2 : M, y + 32); y += 50; }
+    else if (b.t === 'sec') { need(120); y += 30; x.fillStyle = '#a32a1b'; x.font = '600 30px ' + SANS; x.textAlign = 'left'; x.fillText(b.s, M, y + 30);
+      y += 46; x.fillStyle = '#ccc'; x.fillRect(M, y, W - 2 * M, 2); y += 18; }
+    else if (b.t === 'names') {
+      var LH = 64, colW = b.two ? (W - 2 * M) / 2 : W - 2 * M, k = 0;
+      while (k < b.items.length) {
+        need(LH);
+        var rows = Math.floor((H - M - y) / LH), per = rows * (b.two ? 2 : 1);
+        var chunk = b.items.slice(k, k + per), inCol = b.two ? Math.ceil(chunk.length / 2) : chunk.length;
+        chunk.forEach(function (it, j) {
+          var cx = M + (j >= inCol ? colW : 0), cy = y + (j % inCol) * LH;
+          x.textAlign = 'right'; x.fillStyle = '#888'; x.font = '30px ' + SANS; x.fillText(it.n, cx + 70, cy + 46);
+          x.textAlign = 'left'; x.fillStyle = '#111'; x.font = '44px ' + SERIF;
+          var nm = fit(it.s, colW - 110 - (it.tag ? 120 : 0)); x.fillText(nm, cx + 88, cy + 46);
+          if (it.tag) { var w = x.measureText(nm).width; x.font = '24px ' + SANS; x.fillStyle = '#777'; x.fillText(it.tag, cx + 100 + w, cy + 46); }
+        });
+        y += inCol * LH; k += chunk.length;
+      }
+    }
+    else if (b.t === 'row') {
+      var h = b.big ? 58 : 50; need(h);
+      if (b.line) { x.fillStyle = b.line === 2 ? '#111' : '#ddd'; x.fillRect(M, y, W - 2 * M, b.line === 2 ? 3 : 2); }
+      x.fillStyle = b.head ? '#777' : '#111'; x.font = (b.bold ? '700 ' : '') + (b.head ? '26px ' : '30px ') + SANS;
+      x.textAlign = 'left'; x.fillText(fit(b.c[0], cols[0] - M - 200), M + (b.indent ? 30 : 0), y + 38);
+      x.textAlign = 'right'; for (var i = 1; i < b.c.length; i++) x.fillText(b.c[i], cols[i - 1], y + 38);
+      y += h; }
+    else if (b.t === 'gap') { y += b.h || 30; }
+    else if (b.t === 'small') { need(44); x.fillStyle = '#777'; x.font = '24px ' + SANS; x.textAlign = 'left'; x.fillText(fit(b.s, W - 2 * M), M, y + 30); y += 44; }
+  });
+  pages.forEach(function (p, i) {
+    if (pages.length < 2) return;
+    var g = p.getContext('2d'); g.fillStyle = '#999'; g.font = '22px ' + SANS; g.textAlign = 'center'; g.fillText((i + 1) + ' / ' + pages.length, W / 2, H - 50);
+  });
+  return pages;
+}
 
 /* ── расписание: правка дня ── */
 function renderDayEdit() {
@@ -670,7 +773,21 @@ function runReport() {
     h += '</table><p class="legend">Сума — розрахована сайтом рекомендована пожертва, а не фактично отримані кошти.</p>' +
       '<button class="btn noprint" id="rPrint" style="width:100%;margin-top:10px">Друк</button></div>';
     $('rOut').innerHTML = h;
-    $('rPrint').onclick = function () { window.print(); };
+    $('rPrint').onclick = function () {
+      var t = (A.settings && A.settings.temple) || '';
+      var B = [{ t: 'h1', s: 'Звіт по записках' }, { t: 'sub', s: (t ? t + ' · ' : '') + dmy(r.from) + ' — ' + dmy(r.to) },
+        { t: 'sub', s: (r.basis === 'service' ? 'За датою служби' : 'За датою подання') + ' · записок: ' + r.total.notes + ' · імен: ' + r.total.names + ' · сума: ' + money(r.total.sum) },
+        { t: 'gap' }, { t: 'row', head: 1, c: ['Треба', 'Записок', 'Імен', 'Сума'] }];
+      r.byTreba.forEach(function (g) {
+        B.push({ t: 'row', bold: 1, line: 1, big: 1, c: [g.treba, String(g.notes), String(g.names), money(g.sum)] });
+        g.byPay.forEach(function (p) { B.push({ t: 'row', indent: 1, c: [p.pay, String(p.notes), String(p.names), money(p.sum)] }); });
+      });
+      B.push({ t: 'row', bold: 1, line: 2, big: 1, c: ['Разом', String(r.total.notes), String(r.total.names), money(r.total.sum)] });
+      B.push({ t: 'gap', h: 50 }, { t: 'row', head: 1, c: ['За способом пожертви', 'Записок', 'Імен', 'Сума'] });
+      r.byPay.forEach(function (p) { B.push({ t: 'row', bold: 1, line: 1, c: [p.pay, String(p.notes), String(p.names), money(p.sum)] }); });
+      B.push({ t: 'gap' }, { t: 'small', s: 'Сума — розрахована сайтом рекомендована пожертва, а не фактично отримані кошти.' });
+      doPrint(B, 'zvit-' + r.from + '-' + r.to);
+    };
   });
 }
 
