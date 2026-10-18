@@ -108,6 +108,8 @@
   .tt input { height: 42px; padding: 0 4px; font-size: 16px; text-align: center; }
   .f2 { display: grid; grid-template-columns: 1fr 110px; gap: 8px; align-items: center; margin-bottom: 8px; }
   .fld { margin-bottom: 10px; }
+  .fin { border-color: var(--gold); }
+  .warn { background: var(--gold-bg); border-radius: 10px; padding: 10px 12px; font-size: 14px; margin: 0 0 12px; color: var(--text); }
   .chk { display: flex; gap: 12px; align-items: center; font-size: 16px; cursor: pointer; }
   .chk input { width: 24px; height: 24px; accent-color: var(--gold); flex: 0 0 auto; }
   .pr { padding: 10px 0; border-bottom: 1px solid var(--line); } .pr:last-child { border-bottom: none; }
@@ -233,18 +235,28 @@
         <div class="tt" id="sCut"></div>
         <div class="f2" style="margin-top:12px"><span>Показувати дати наперед, днів</span><input type="number" id="sAhead" min="1" max="120"></div>
       </div>
-      <div class="card">
-        <p class="lbl">Онлайн-пожертва</p>
-        <div class="fld"><label>Посилання на банку (Monobank тощо)</label><input type="text" id="sBank" placeholder="https://send.monobank.ua/jar/…" inputmode="url"></div>
-        <div class="fld"><label>Номер картки</label><input type="text" id="sCard" placeholder="5375 4141 0000 0000" inputmode="numeric"></div>
-        <div class="fld"><label>Отримувач (як підписати картку)</label><input type="text" id="sCardName" placeholder="Парафія храму …"></div>
-        <p class="legend">Якщо обидва поля порожні, варіант «Онлайн» парафіянам не показується.</p>
-      </div>
-      <div class="card">
-        <div class="fld"><label>Новий PIN (якщо потрібно змінити)</label><input type="password" inputmode="numeric" id="sPin" maxlength="8" autocomplete="new-password"></div>
-      </div>
       <button class="main" id="saveSet">Зберегти налаштування</button>
       <p class="err" id="setErr"></p><p class="okmsg" id="setOk"></p>
+      <div class="card fin" id="finCard" style="margin-top:14px">
+        <p class="lbl">🔒 Фінанси та доступ — лише настоятель</p>
+        <div id="fxLocked">
+          <p class="legend" id="fxInfo" style="margin:0 0 10px"></p>
+          <div class="fld"><label>PIN настоятеля</label><input type="password" inputmode="numeric" id="fxGate" maxlength="8" autocomplete="off"></div>
+          <button class="btn" id="fxUnlock" style="width:100%">Відкрити</button>
+          <p class="err" id="fxGateErr"></p>
+        </div>
+        <div id="fxOpen" class="hidden">
+          <p class="warn hidden" id="fxNoRector">PIN настоятеля ще не задано: ці поля зараз може змінити будь-хто з доступом. Задайте його нижче.</p>
+          <div class="fld"><label>Посилання на банку (Monobank тощо)</label><input type="text" id="sBank" placeholder="https://send.monobank.ua/jar/…" inputmode="url"></div>
+          <div class="fld"><label>Номер картки</label><input type="text" id="sCard" placeholder="5375 4141 0000 0000" inputmode="numeric"></div>
+          <div class="fld"><label>Отримувач (як підписати картку)</label><input type="text" id="sCardName" placeholder="Парафія храму …"></div>
+          <p class="legend" style="margin:0 0 12px">Якщо банка і картка порожні, варіант «Онлайн» парафіянам не показується.</p>
+          <div class="fld"><label>Новий PIN для духовенства (4–8 цифр, якщо змінюєте)</label><input type="password" inputmode="numeric" id="sPin" maxlength="8" autocomplete="new-password"></div>
+          <div class="fld"><label id="fxRLabel">Новий PIN настоятеля (6–8 цифр, якщо змінюєте)</label><input type="password" inputmode="numeric" id="sRPin" maxlength="8" autocomplete="new-password"></div>
+          <button class="main" id="saveFin">Зберегти</button>
+          <p class="err" id="finErr"></p><p class="okmsg" id="finOk"></p>
+        </div>
+      </div>
       <div class="card" style="text-align:center;margin-top:14px">
         <p class="lbl">Посилання для парафіян</p>
         <p style="word-break:break-all;font-size:14px;margin:0 0 10px"><a id="pubLink" target="_blank" style="color:var(--gold)"></a></p>
@@ -321,13 +333,15 @@ function doLogin() {
   call(firstRun ? 'clergySetPin' : 'clergyLogin', [p, window.PUBLIC_URL || ''], function (r) {
     $('loginBtn').disabled = false;
     if (!r.ok) { $('loginErr').textContent = r.error || 'Помилка'; return; }
-    A.pin = p; remember(p); start(r);
+    A.pin = p; if (r.role !== 'rector') remember(p); start(r);
   });
 }
 $('loginBtn').onclick = doLogin;
 $('pin').onkeydown = $('pin2').onkeydown = function (e) { if (e.key === 'Enter') doLogin(); };
 
 function start(r) {
+  A.rectorSet = !!r.rectorSet; A.rpin = r.role === 'rector' ? A.pin : '';
+  if (r.role === 'rector') { try { localStorage.removeItem('zpin'); } catch (e) {} }
   A.settings = r.settings; A.services = r.services; A.trebas = r.trebas; A.today = r.today; A.url = window.PUBLIC_URL || r.url;
   A.isExec = /script\.google/.test(A.url);
   A.ym = r.today.slice(0, 7); A.sel = r.today;
@@ -517,6 +531,7 @@ function fillSettings() {
   $('sAhead').value = s.ahead;
   $('sFree').checked = s.allowFree !== false;
   $('sBank').value = s.bankUrl || ''; $('sCard').value = s.card || ''; $('sCardName').value = s.cardName || '';
+  renderFin();
   $('pubLink').textContent = A.url; $('pubLink').href = A.url;
   drawQr();
 }
@@ -529,7 +544,6 @@ function drawQr() {
 }
 $('saveSet').onclick = function () {
   var v = { temple: $('sTemple').value, prices: {}, week: W, cutoff: {}, ahead: $('sAhead').value,
-    bankUrl: $('sBank').value, card: $('sCard').value, cardName: $('sCardName').value, newPin: $('sPin').value.trim(),
     allowFree: $('sFree').checked };
   [].forEach.call($('sPrices').querySelectorAll('.pr'), function (r) {
     var per = r.querySelector('.pper').value;
@@ -543,7 +557,6 @@ $('saveSet').onclick = function () {
   call('clergySaveSettings', [A.pin, v], function (r) {
     $('saveSet').disabled = false;
     if (!r.ok) { $('setErr').textContent = r.error || 'Помилка'; return; }
-    if (v.newPin) { A.pin = v.newPin; remember(v.newPin); $('sPin').value = ''; }
     A.settings = r.settings; $('setOk').textContent = 'Збережено';
     loadMonth();
   });
@@ -607,6 +620,45 @@ function runReport() {
     $('rPrint').onclick = function () { window.print(); };
   });
 }
+
+
+/* ── финансы: только настоятель ── */
+function renderFin() {
+  var s = A.settings, locked = A.rectorSet && !A.rpin;
+  $('fxLocked').classList.toggle('hidden', !locked);
+  $('fxOpen').classList.toggle('hidden', locked);
+  $('fxNoRector').classList.toggle('hidden', A.rectorSet);
+  $('fxRLabel').textContent = A.rectorSet ? 'Новий PIN настоятеля (6–8 цифр, якщо змінюєте)' : 'PIN настоятеля (6–8 цифр)';
+  $('fxInfo').textContent = 'Банка: ' + (s.bankUrl || '—') + ' · Картка: ' + (s.card || '—') + (s.cardName ? ' (' + s.cardName + ')' : '');
+}
+$('fxUnlock').onclick = function () {
+  var p = $('fxGate').value.trim();
+  $('fxGateErr').textContent = '';
+  if (!p) { $('fxGateErr').textContent = 'Введіть PIN настоятеля'; return; }
+  $('fxUnlock').disabled = true;
+  call('clergyRector', [A.pin, p], function (r) {
+    $('fxUnlock').disabled = false;
+    if (!r.ok) { $('fxGateErr').textContent = r.error || 'Помилка'; return; }
+    A.rpin = p; $('fxGate').value = ''; renderFin();
+  });
+};
+$('saveFin').onclick = function () {
+  var v = { bankUrl: $('sBank').value, card: $('sCard').value, cardName: $('sCardName').value,
+    newPin: $('sPin').value.trim(), newRectorPin: $('sRPin').value.trim() };
+  $('finErr').textContent = ''; $('finOk').textContent = '';
+  if (!A.rectorSet && !v.newRectorPin) { $('finErr').textContent = 'Спочатку задайте PIN настоятеля'; return; }
+  $('saveFin').disabled = true;
+  call('clergySaveFinance', [A.pin, A.rpin, v], function (r) {
+    $('saveFin').disabled = false;
+    if (!r.ok) { $('finErr').textContent = r.error || 'Помилка'; return; }
+    var wasRector = A.pin === A.rpin;
+    if (v.newRectorPin) { A.rpin = v.newRectorPin; if (wasRector) A.pin = v.newRectorPin; }
+    if (v.newPin && !wasRector) { A.pin = v.newPin; remember(v.newPin); }
+    A.settings = r.settings; A.rectorSet = r.rectorSet;
+    $('sPin').value = ''; $('sRPin').value = '';
+    renderFin(); $('finOk').textContent = 'Збережено';
+  });
+};
 
 /* ── мелочи ── */
 var DOWF = ['неділя', 'понеділок', 'вівторок', 'середа', 'четвер', 'п’ятниця', 'субота'];
