@@ -27,6 +27,7 @@
     }
   }
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
   body { margin: 0; background: var(--bg); color: var(--text); font: 16px/1.5 -apple-system, "Segoe UI", Roboto, Arial, sans-serif; }
   .wrap { max-width: 560px; margin: 0 auto; padding: 14px 14px 90px; }
   h1 { font: 700 21px/1.25 "Old Standard TT", Georgia, serif; margin: 4px 0 2px; }
@@ -151,6 +152,7 @@
   /* Записка */
   .note { background: var(--paper); color: var(--ink); border: 1px solid var(--line); border-radius: 6px; padding: 22px 20px 30px; text-align: center; }
   .note .cr { font-size: 34px; line-height: 1; color: var(--cin); }
+  .note .cr .crs { width: 22px; height: 33px; }
   .note .kind { font: 700 30px/1.2 "Old Standard TT", Georgia, serif; color: var(--cin); letter-spacing: .06em; text-transform: uppercase; margin: 8px 0 2px; }
   .note .meta { font-size: 14px; color: var(--muted); margin-bottom: 16px; }
   .note ol { list-style: none; padding: 0; margin: 0; font-family: "Old Standard TT", Georgia, serif; }
@@ -184,7 +186,8 @@
   .psv .tgmsg { position: fixed; left: 12px; right: 12px; bottom: calc(env(safe-area-inset-bottom) + 84px); z-index: 62; text-align: center; }
   .psv .tgmsg span { display: inline-block; background: var(--card); color: var(--text); border: 1px solid var(--line); border-radius: 10px; padding: 8px 12px; font-size: 14px; box-shadow: 0 4px 16px rgba(0,0,0,.25); }
   @media print { body.psmode .psv .tgmsg { display: none; } }
-  .sheet { width: 794px; height: 1123px; margin: 0 auto; background: #fffdf7; color: #2a1d14; position: relative; overflow: hidden;
+  .shw { margin: 0 auto; overflow: hidden; }
+  .sheet { width: 794px; height: 1123px; margin: 0; background: #fffdf7; color: #2a1d14; position: relative; overflow: hidden;
     transform-origin: top left; box-shadow: 0 6px 30px rgba(0,0,0,.35); }
   .sheet .in { position: absolute; inset: 34px; border: 2px solid #a8792a; padding: 30px 38px 26px; }
   .sheet .in::before { content: ''; position: absolute; inset: 5px; border: .8px solid #a8792a; opacity: .6; pointer-events: none; }
@@ -192,7 +195,9 @@
   .sheet .co.a { top: -18px; left: -18px; } .sheet .co.b { top: -18px; right: -18px; } .sheet .co.c { bottom: -18px; left: -18px; } .sheet .co.d { bottom: -18px; right: -18px; }
   .sheet .fit { transform-origin: top center; }
   .sheet .hd { text-align: center; }
-  .sheet .hd .x { font: 34px/1 "Old Standard TT", Georgia, serif; color: #7a2318; }
+  .crs { display: inline-block; width: 1em; height: 1.5em; vertical-align: middle; }
+  .sheet .hd .xc .crs { width: 22px; height: 33px; }
+  .sheet .hd .xc { font: 34px/1 "Old Standard TT", Georgia, serif; color: #7a2318; }
   .sheet .hd .tm { font: italic 17px/1.3 "Old Standard TT", Georgia, serif; color: #6f6152; margin-top: 6px; }
   .sheet .hd h1 { font: 700 34px/1.15 "Old Standard TT", Georgia, serif; margin: 2px 0 0; color: #2a1d14; }
   .sheet .hd .wkr { font: italic 21px/1.3 "Old Standard TT", Georgia, serif; color: #7a2318; margin-top: 4px; }
@@ -224,7 +229,7 @@
   .sheet .foot i { display: block; font: italic 14px/1.3 "Old Standard TT", Georgia, serif; color: #6f6152; }
   .sheet .foot .arch { width: 112px; padding: 20px 9px 9px; border: 1.5px solid #a8792a; border-radius: 56px 56px 8px 8px; background: #fbf3e2; position: relative; }
   .sheet .foot .arch::before { content: ''; position: absolute; inset: 3px; border: .6px solid #a8792a; border-radius: 53px 53px 6px 6px; opacity: .7; }
-  .sheet .foot .arch::after { content: '☦'; position: absolute; top: -13px; left: 50%; transform: translateX(-50%); width: 22px; text-align: center; background: #fffdf7; color: #7a2318; font: 18px/22px "Old Standard TT", Georgia, serif; }
+  .sheet .foot .arch::after { content: ''; height: 22px; background: #fffdf7 url("data:image/svg+xml,%3Csvg%20viewBox%3D%220%200%2040%2060%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Cg%20fill%3D%22%237a2318%22%3E%3Crect%20x%3D%2217%22%20y%3D%220%22%20width%3D%226%22%20height%3D%2260%22%20rx%3D%221.5%22/%3E%3Crect%20x%3D%2210%22%20y%3D%229%22%20width%3D%2220%22%20height%3D%225%22%20rx%3D%221.5%22/%3E%3Crect%20x%3D%223%22%20y%3D%2220%22%20width%3D%2234%22%20height%3D%226%22%20rx%3D%221.5%22/%3E%3Crect%20x%3D%229%22%20y%3D%2242%22%20width%3D%2222%22%20height%3D%225%22%20rx%3D%221.5%22%20transform%3D%22rotate%2820%2020%2044.5%29%22/%3E%3C/g%3E%3C/svg%3E") center / 12px 18px no-repeat; position: absolute; top: -13px; left: 50%; transform: translateX(-50%); width: 22px; text-align: center; background: #fffdf7; color: #7a2318; font: 18px/22px "Old Standard TT", Georgia, serif; }
   .sheet .foot .qr { position: relative; background: #fff; border-radius: 6px; padding: 4px; }
   .sheet .foot .qr svg { display: block; width: 100%; height: auto; }
   @media print {
@@ -233,6 +238,7 @@
     body.psmode { background: #fff; }
     body.psmode .psv { position: static; background: none; padding: 0; overflow: visible; }
     body.psmode .psv .bar { display: none; }
+    body.psmode .shw { width: auto !important; height: auto !important; overflow: visible; }
     body.psmode .sheet { box-shadow: none; zoom: 1 !important; transform: none !important; margin: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   }
   @media print {
@@ -247,7 +253,7 @@
 
   <!-- Вход -->
   <div id="login" class="hidden" style="max-width:340px;margin:40px auto 0;text-align:center">
-    <div style="font-size:30px;color:var(--gold)">☦</div>
+    <div style="color:var(--gold)"><svg class="crs" style="width:20px;height:30px" viewBox="0 0 40 60" aria-hidden="true"><g fill="currentColor"><rect x="17" y="0" width="6" height="60" rx="1.5"/><rect x="10" y="9" width="20" height="5" rx="1.5"/><rect x="3" y="20" width="34" height="6" rx="1.5"/><rect x="9" y="42" width="22" height="5" rx="1.5" transform="rotate(20 20 44.5)"/></g></svg></div>
     <h1 id="loginTitle">Вхід для духовенства</h1>
     <p class="sub" id="loginSub">Введіть PIN-код</p>
     <input type="password" inputmode="numeric" id="pin" maxlength="8" autocomplete="current-password" style="text-align:center;font-size:24px;letter-spacing:.3em">
@@ -442,6 +448,13 @@ window.google = { script: { run: (function mk(ok, fail) {
 var $ = function (id) { return document.getElementById(id); };
 var MON = ['Січень', 'Лютий', 'Березень', 'Квітень', 'Травень', 'Червень', 'Липень', 'Серпень', 'Вересень', 'Жовтень', 'Листопад', 'Грудень'];
 var WD = ['пн', 'вт', 'ср', 'чт', 'пт', 'сб', 'нд'];
+// православний хрест (нижня перекладина: лівий край вище, правий нижче) — малюнок, а не символ шрифту
+var CROSS = '<svg class="crs" viewBox="0 0 40 60" aria-hidden="true"><g fill="currentColor"><rect x="17" y="0" width="6" height="60" rx="1.5"/><rect x="10" y="9" width="20" height="5" rx="1.5"/><rect x="3" y="20" width="34" height="6" rx="1.5"/><rect x="9" y="42" width="22" height="5" rx="1.5" transform="rotate(20 20 44.5)"/></g></svg>';
+function drawCross(x, cx, top, h, color) {
+  var k = h / 60; x.save(); x.fillStyle = color; x.translate(cx - 20 * k, top); x.scale(k, k);
+  x.fillRect(17, 0, 6, 60); x.fillRect(10, 9, 20, 5); x.fillRect(3, 20, 34, 6);
+  x.translate(20, 44.5); x.rotate(20 * Math.PI / 180); x.fillRect(-11, -2.5, 22, 5); x.restore();
+}
 var SH = { lit: 'Л', mol: 'М', pan: 'П', oth: 'І' };
 var A = { pin: '', today: '', ym: '', month: {}, sel: '', settings: null, services: [], trebas: [], tab: 'tabNotes', font: 28 };
 
@@ -615,7 +628,7 @@ function showNote(g, r) {
     return '<li><span class="nmx">' + esc(x.n) + '</span>' + (x.tag ? '<span class="tag">' + esc(x.tag) + '</span>' : '') +
       '<button class="del noprint" data-uid="' + esc(x.uid) + '" aria-label="Прибрати ' + esc(x.n) + '">×</button></li>';
   };
-  var h = '<div class="cr">☦</div><div class="kind">' + esc(about(g.kind)) + '</div>' +
+  var h = '<div class="cr">' + CROSS + '</div><div class="kind">' + esc(about(g.kind)) + '</div>' +
     '<div class="meta">' + esc(g.treba) + ' · ' + esc(r.label) + ' · ' + g.names.length + ' ' + plural(g.names.length, 'ім’я', 'імені', 'імен') + '</div>';
   if (paid.length) h += '<div class="sec">З пожертвою · ' + paid.length + '</div><ol>' + paid.map(li).join('') + '</ol>';
   if (free.length) h += '<div class="sec">Без пожертви · ' + free.length + '</div><ol>' + free.map(li).join('') + '</ol>';
@@ -713,7 +726,7 @@ function drawPages(B) {
   var cols = [W - M - 480, W - M - 300, W - M]; // правые края колонок таблицы
   page();
   B.forEach(function (b) {
-    if (b.t === 'cross') { need(80); x.fillStyle = '#a32a1b'; x.font = '64px ' + SERIF; x.textAlign = 'center'; x.fillText('☦', W / 2, y + 60); y += 90; }
+    if (b.t === 'cross') { need(80); drawCross(x, W / 2, y + 2, 72, '#a32a1b'); y += 90; }
     else if (b.t === 'h1') { need(70); x.fillStyle = b.c === 'red' ? '#a32a1b' : '#111'; x.font = '700 50px ' + SERIF; x.textAlign = b.c === 'red' ? 'center' : 'left';
       x.fillText(b.s, b.c === 'red' ? W / 2 : M, y + 50); y += 72; }
     else if (b.t === 'sub') { need(50); x.fillStyle = '#555'; x.font = '30px ' + SANS; x.textAlign = b.c === 'center' ? 'center' : 'left';
@@ -896,12 +909,12 @@ function printWeek(add) {
       return h + '</td></tr>';
     }).join('');
     var ov = document.createElement('div'); ov.className = 'psv';
-    ov.innerHTML = '<div class="sheet"><div class="in"><span class="co a">❦</span><span class="co b">❦</span><span class="co c">❦</span><span class="co d">❦</span>' +
-      '<div class="fit"><div class="hd"><div class="x">☦</div><div class="tm">' + esc(r.temple) + '</div><h1>Розклад богослужінь</h1>' +
+    ov.innerHTML = '<div class="shw"><div class="sheet"><div class="in"><span class="co a">❦</span><span class="co b">❦</span><span class="co c">❦</span><span class="co d">❦</span>' +
+      '<div class="fit"><div class="hd"><div class="xc">' + CROSS + '</div><div class="tm">' + esc(r.temple) + '</div><h1>Розклад богослужінь</h1>' +
       '<div class="wkr">' + a.day + (a.mon === b.mon ? '' : ' ' + MONP[a.mon]) + ' – ' + b.day + ' ' + MONP[b.mon] + ' ' + b.key.slice(0, 4) + ' р.</div></div>' +
       '<div class="orn2">✤</div><table>' + rows + '</table></div>' +
-      footHtml() + '</div></div>' +
-      '<div class="bar"><button type="button" class="x">Закрити</button><button type="button" class="tg">✈️ У Telegram</button><button type="button" class="go">Друкувати</button></div>' +
+      footHtml() + '</div></div></div>' +
+      '<div class="bar"><button type="button" class="x">Закрити</button><button type="button" class="tg">✈️ Telegram</button><button type="button" class="go">Друкувати</button></div>' +
       '<div class="tgmsg"></div>';
     document.body.appendChild(ov); document.body.classList.add('psmode');
     // якщо служб багато — трохи зменшуємо, щоб усе влізло на один аркуш
@@ -912,11 +925,12 @@ function printWeek(add) {
     var kf = Math.max(0.6, Math.min(1.3, room / hgt));
     fit.style.width = (100 / kf) + '%'; fit.style.transformOrigin = 'top left'; fit.style.transform = 'scale(' + kf.toFixed(3) + ')';
     // на телефоні аркуш зменшуємо до ширини екрана
-    var sh = ov.querySelector('.sheet'), k = Math.min(1, (window.innerWidth - 24) / 794);
-    if (k < 1) { sh.style.zoom = k; }
-    ov.querySelector('.x').onclick = function () { document.body.removeChild(ov); document.body.classList.remove('psmode'); };
-    ov.querySelector('.go').onclick = function () { window.print(); };
-    ov.querySelector('.tg').onclick = function () { sendSheet(ov, sh, ymd(mon)); };
+    // на телефоні — зменшуємо весь аркуш transform-ом (iPhone тоді не «збільшує» дрібний текст сам)
+    var sh = ov.querySelector('.sheet'), shw = ov.querySelector('.shw'), k = Math.min(1, (window.innerWidth - 24) / 794);
+    if (k < 1) { sh.style.transform = 'scale(' + k + ')'; shw.style.width = (794 * k) + 'px'; shw.style.height = (1123 * k) + 'px'; }
+    ov.querySelector('.bar .x').onclick = function () { document.body.removeChild(ov); document.body.classList.remove('psmode'); };
+    ov.querySelector('.bar .go').onclick = function () { window.print(); };
+    ov.querySelector('.bar .tg').onclick = function () { sendSheet(ov, sh, ymd(mon)); };
   });
 }
 // аркуш → PDF у браузері (точно як на екрані) → скрипт надсилає в групу й запам'ятовує для недільної розсилки
@@ -930,24 +944,26 @@ function sendSheet(ov, sh, from) {
   var btn = ov.querySelector('.tg'), msg = ov.querySelector('.tgmsg');
   var say = function (t) { msg.innerHTML = t ? '<span>' + esc(t) + '</span>' : ''; };
   btn.disabled = true; btn.textContent = 'Готуємо…'; say('');
-  var z = sh.style.zoom; sh.style.zoom = '';
+  var z = sh.style.transform, w = sh.parentNode, ws = [w.style.width, w.style.height];
+  sh.style.transform = ''; w.style.width = ''; w.style.height = '';
+  var back = function () { sh.style.transform = z; w.style.width = ws[0]; w.style.height = ws[1]; };
   Promise.all([loadJs('https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js'),
     loadJs('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js')])
     .then(function () { return document.fonts ? document.fonts.ready : null; })
     .then(function () { return html2canvas(sh, { scale: 2, backgroundColor: '#fffdf7', useCORS: true, logging: false }); })
     .then(function (canvas) {
-      sh.style.zoom = z;
+      back();
       var pdf = new window.jspdf.jsPDF({ unit: 'pt', format: 'a4', compress: true });
       pdf.addImage(canvas.toDataURL('image/jpeg', 0.9), 'JPEG', 0, 0, 595.28, 841.89);
       var b64 = pdf.output('datauristring').split(',')[1];
       btn.textContent = 'Надсилаємо…';
       call('clergyWeekSend', [A.pin, from, b64], function (r) {
-        btn.disabled = false; btn.textContent = '✈️ У Telegram';
+        btn.disabled = false; btn.textContent = '✈️ Telegram';
         say(r.ok ? 'Надіслано в групу. Цей аркуш піде й у недільній розсилці.' : (r.error || 'Не вдалося надіслати'));
       });
     })
     .catch(function () {
-      sh.style.zoom = z; btn.disabled = false; btn.textContent = '✈️ У Telegram';
+      back(); btn.disabled = false; btn.textContent = '✈️ Telegram';
       say('Не вдалося підготувати PDF. Перевірте інтернет і спробуйте ще раз.');
     });
 }
