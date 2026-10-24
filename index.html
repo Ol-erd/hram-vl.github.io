@@ -851,6 +851,8 @@ function refreshMy() {
       var st = r.notes[x.id]; if (!st) return;
       if (!st.exists) { x.gone = true; x.editable = false; return; }
       x.editable = st.editable; x.names = st.names; x.limit = st.limit;
+      if (st.date && st.date !== x.date) { x.date = st.date; x.dateLabel = st.dateLabel; } // батюшки перенесли службу
+      if (st.until) x.until = st.until;
     });
     saveMy(); renderMy(false);
     var n = MY.filter(function (x) { return x.editable; }).length;

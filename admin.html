@@ -612,7 +612,7 @@ function showGroups(r) {
     r.groups.forEach(function (g, i) {
       if (g.names.length) any = true;
       h += '<button class="grp' + (g.names.length ? '' : ' empty') + '" data-g="' + i + '"><span>' + esc(g.treba) +
-        '<small>' + esc(about(g.kind).toLowerCase()) + '</small></span><span class="cnt">' + g.names.length + '</span></button>';
+        '<small>' + esc(about(g.kind).toLowerCase()) + (g.noSvc ? ' · <b style="color:var(--err)">служби немає в розкладі</b>' : '') + '</small></span><span class="cnt">' + g.names.length + '</span></button>';
     });
     h += '</div>' + (any ? '' : '<p class="sub" style="margin:10px 0 0">' + (r.range ? 'За цей період записок немає.' : 'На цей день записок поки немає.') + '</p>') + '</div>';
     box.innerHTML = h;
@@ -847,6 +847,11 @@ function renderDayEdit() {
   var save = function (val) {
     $('dSave').disabled = true; $('dSave').textContent = 'Зберігаємо…';
     call('clergySaveDay', [A.pin, key, val], function (r) {
+      if (r.confirm) {
+        $('dSave').disabled = false; $('dSave').textContent = 'Зберегти';
+        if (confirm(r.warn)) { val.force = true; save(val); }
+        return;
+      }
       if (!r.ok) { $('dSave').disabled = false; $('dSave').textContent = 'Зберегти'; $('dErr').textContent = r.error || 'Помилка'; return; }
       A.month = r.days; renderCals(); renderDayEdit();
       $('dSave').textContent = 'Збережено ✓';
@@ -999,6 +1004,7 @@ $('tplSave').onclick = function () {
     $('tplSave').disabled = false;
     if (!r.ok) { $('tplSave').textContent = 'Зберегти звичайний розклад'; $('tplErr').textContent = r.error || 'Помилка'; return; }
     A.settings = r.settings; TPL = null; renderTpl();
+    if (r.moved && r.moved.length) alert('Службу прибрано у днях, на які вже подали записки. Імена перенесено на найближчу таку саму службу:\n' + r.moved.join('\n'));
     $('tplSave').textContent = 'Збережено ✓';
     setTimeout(function () { $('tplSave').textContent = 'Зберегти звичайний розклад'; }, 1500);
     loadMonth(function () { renderDayEdit(); });
