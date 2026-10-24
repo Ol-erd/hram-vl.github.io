@@ -1208,7 +1208,9 @@ function tgDraw(r) {
       (r.botOn ? '<p class="sub" style="margin:8px 0 0">Відкрийте ' + (r.bot ? '<a href="https://t.me/' + esc(r.bot) + '" target="_blank" rel="noopener">@' + esc(r.bot) + '</a>' : 'бота') +
         ', натисніть «Старт» і надішліть PIN настоятеля — бот одразу видалить це повідомлення.</p>' +
         (r.admins && r.admins.length ? '<p class="st" style="margin-top:8px">Підключено: <b>' + r.admins.map(esc).join(', ') + '</b></p>' +
-          '<button class="link" id="tgBotClr" style="font-size:14px">Відключити всі телефони</button>' : '') : '') +
+          '<button class="link" id="tgBotClr" style="font-size:14px">Відключити всі телефони</button>' : '') +
+        '<details style="margin-top:8px"><summary class="legend" style="cursor:pointer">Журнал бота</summary><p class="legend" style="margin:6px 0 0;white-space:pre-line">' +
+        (r.diag && r.diag.length ? r.diag.slice().reverse().map(esc).join('\n') : 'Поки порожньо — напишіть боту /start і оновіть сторінку.') + '</p></details>' : '') +
       '</div>' +
       '<button class="link" id="tgForget" style="color:var(--muted);font-size:14px">Відключити бота</button>';
   } else {
