@@ -51,6 +51,26 @@
   .tabs button { font-size: 13px !important; }
   input[type=date] { height: 46px; border: 1px solid var(--line); border-radius: 10px; padding: 0 10px; font: inherit; font-size: 16px;
     background: transparent; color: var(--text); width: 100%; min-width: 0; }
+  .wdsel { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; margin-bottom: 12px; }
+  .wdsel button { height: 40px; border-radius: 8px; border: 1px solid var(--line); background: var(--card); cursor: pointer; font-size: 14px; padding: 0; }
+  .wdsel button.on { background: var(--gold); border-color: var(--gold); color: var(--card); font-weight: 700; }
+  .its { display: flex; flex-direction: column; gap: 10px; }
+  .it { border: 1px solid var(--line); border-radius: 12px; padding: 10px; display: grid; grid-template-columns: 70px 1fr 36px; gap: 8px; align-items: center; }
+  .it.lit { border-left: 4px solid var(--red); } .it.mol, .it.pan, .it.othn { border-left: 4px solid var(--gold); }
+  .addsv .btn:disabled { opacity: .4; }
+  .it input.tm { text-align: center; font-variant-numeric: tabular-nums; height: 44px; border: 1px solid var(--line); border-radius: 10px; padding: 0 6px; font: inherit; font-size: 16px; background: transparent; color: var(--text); width: 100%; }
+  .it .nm { grid-column: 2 / 3; }
+  .it select { grid-column: 1 / 3; height: 40px; border: 1px solid var(--line); border-radius: 10px; padding: 0 8px; font: inherit; font-size: 15px; background: var(--card); color: var(--text); }
+  .it .rm { grid-row: 1 / 3; grid-column: 3; align-self: stretch; border: none; background: none; color: var(--muted); font-size: 24px; cursor: pointer; }
+  .addsv { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; margin-top: 10px; }
+  .addsv .btn { font-size: 14px; min-height: 40px; padding: 4px 6px; }
+  textarea.sub2 { width: 100%; min-height: 64px; border: 1px solid var(--line); border-radius: 10px; padding: 8px 12px; font: inherit; font-size: 15px; background: transparent; color: var(--text); resize: vertical; }
+  .tgbox { margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--line); }
+  .tgbox ol { margin: 0 0 10px; padding-left: 20px; font-size: 14px; } .tgbox li { margin-bottom: 4px; }
+  .tgbox .st { font-size: 15px; margin: 0 0 10px; } .tgbox .st b { color: var(--ok); }
+  .tgchats { display: grid; gap: 6px; margin: 8px 0; }
+  .reads { border-left: 4px solid var(--gold); font: 16px/1.5 "Old Standard TT", Georgia, serif; }
+  .psum { cursor: pointer; font-weight: 600; color: var(--gold); padding: 2px 0; }
   .quick { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-bottom: 12px; }
   .quick .btn, .grid2 .btn { font-size: 15px; padding: 6px 8px; }
   .f2d { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
@@ -155,6 +175,66 @@
   .pv .pvbar button { flex: 1; min-height: 50px; border-radius: 10px; font-size: 17px; border: 1px solid var(--line); background: var(--card); color: var(--text); cursor: pointer; }
   .pv .pvbar .go { background: var(--red); color: var(--on-red); border-color: var(--red); font-weight: 600; }
   .pv p { color: #ddd; text-align: center; font-size: 14px; margin: 0 0 12px; }
+  /* аркуш розкладу для друку */
+  .psv { position: fixed; inset: 0; z-index: 60; background: rgba(30,24,18,.75); overflow: auto; -webkit-overflow-scrolling: touch;
+    padding: 12px 12px 90px; }
+  .psv .bar { position: fixed; left: 0; right: 0; bottom: 0; display: flex; gap: 8px; padding: 12px 12px calc(env(safe-area-inset-bottom) + 12px); background: var(--bg); z-index: 61; }
+  .psv .bar button { flex: 1; min-height: 50px; border-radius: 10px; font-size: 17px; border: 1px solid var(--line); background: var(--card); color: var(--text); cursor: pointer; }
+  .psv .bar .go { background: var(--red); color: var(--on-red); border-color: var(--red); font-weight: 600; }
+  .psv .tgmsg { position: fixed; left: 12px; right: 12px; bottom: calc(env(safe-area-inset-bottom) + 84px); z-index: 62; text-align: center; }
+  .psv .tgmsg span { display: inline-block; background: var(--card); color: var(--text); border: 1px solid var(--line); border-radius: 10px; padding: 8px 12px; font-size: 14px; box-shadow: 0 4px 16px rgba(0,0,0,.25); }
+  @media print { body.psmode .psv .tgmsg { display: none; } }
+  .sheet { width: 794px; height: 1123px; margin: 0 auto; background: #fffdf7; color: #2a1d14; position: relative; overflow: hidden;
+    transform-origin: top left; box-shadow: 0 6px 30px rgba(0,0,0,.35); }
+  .sheet .in { position: absolute; inset: 34px; border: 2px solid #a8792a; padding: 30px 38px 26px; }
+  .sheet .in::before { content: ''; position: absolute; inset: 5px; border: .8px solid #a8792a; opacity: .6; pointer-events: none; }
+  .sheet .co { position: absolute; width: 34px; height: 34px; color: #a8792a; font: 26px/34px "Old Standard TT", Georgia, serif; text-align: center; background: #fffdf7; }
+  .sheet .co.a { top: -18px; left: -18px; } .sheet .co.b { top: -18px; right: -18px; } .sheet .co.c { bottom: -18px; left: -18px; } .sheet .co.d { bottom: -18px; right: -18px; }
+  .sheet .fit { transform-origin: top center; }
+  .sheet .hd { text-align: center; }
+  .sheet .hd .x { font: 34px/1 "Old Standard TT", Georgia, serif; color: #7a2318; }
+  .sheet .hd .tm { font: italic 17px/1.3 "Old Standard TT", Georgia, serif; color: #6f6152; margin-top: 6px; }
+  .sheet .hd h1 { font: 700 34px/1.15 "Old Standard TT", Georgia, serif; margin: 2px 0 0; color: #2a1d14; }
+  .sheet .hd .wkr { font: italic 21px/1.3 "Old Standard TT", Georgia, serif; color: #7a2318; margin-top: 4px; }
+  .sheet .orn2 { display: flex; align-items: center; gap: 12px; color: #a8792a; margin: 12px auto 14px; width: 260px; font-size: 14px; }
+  .sheet .orn2::before, .sheet .orn2::after { content: ''; flex: 1; height: 1px; background: #a8792a; }
+  .sheet table { width: 100%; border-collapse: collapse; }
+  .sheet td { vertical-align: top; padding: 9px 8px; border-top: 1px solid #e3d3b6; }
+  .sheet tr:first-child td { border-top: 1.5px solid #a8792a; }
+  .sheet tr:last-child td { border-bottom: 1.5px solid #a8792a; }
+  .sheet td.dd { width: 150px; text-align: center; border-right: 1px solid #e3d3b6; }
+  .sheet td.dd b { display: block; font: 700 19px/1.2 "Old Standard TT", Georgia, serif; }
+  .sheet td.dd span { display: block; font: italic 16px/1.25 "Old Standard TT", Georgia, serif; }
+  .sheet td.dd small { display: block; font: italic 12px/1.3 "Old Standard TT", Georgia, serif; color: #8a7a66; }
+  .sheet tr.red td.dd b, .sheet tr.red td.dd span { color: #7a2318; }
+  .sheet .ft { font: 700 italic 16px/1.3 "Old Standard TT", Georgia, serif; color: #7a2318; margin-bottom: 2px; }
+  .sheet .sb { font: italic 12.5px/1.35 "Old Standard TT", Georgia, serif; color: #6f6152; margin-bottom: 4px; }
+  .sheet .rw { display: flex; gap: 14px; font: 16.5px/1.4 "Old Standard TT", Georgia, serif; }
+  .sheet .rw b { flex: 0 0 52px; font-variant-numeric: tabular-nums; }
+  .sheet .rw.lit { color: #7a2318; font-weight: 700; }
+  .sheet .rw.nt { font-style: italic; color: #7a2318; font-size: 15.5px; } .sheet .rw.nt b { text-align: center; color: #a8792a; font-weight: 400; }
+  .sheet .none { font: italic 15px/1.4 "Old Standard TT", Georgia, serif; color: #8a7a66; }
+  .sheet .foot { position: absolute; left: 30px; right: 30px; bottom: 18px; display: flex; align-items: flex-end; justify-content: center; gap: 22px; }
+  .sheet .foot .fl, .sheet .foot .fr { flex: 1; padding-bottom: 14px; position: relative; }
+  .sheet .foot .fl { text-align: right; } .sheet .foot .fr { text-align: left; }
+  .sheet .foot .fl::after, .sheet .foot .fr::after { content: ''; position: absolute; bottom: 4px; height: 1px; width: 150px; }
+  .sheet .foot .fl::after { right: 0; background: linear-gradient(90deg, transparent, #a8792a); }
+  .sheet .foot .fr::after { left: 0; background: linear-gradient(90deg, #a8792a, transparent); }
+  .sheet .foot b { display: block; font: 700 italic 21px/1.15 "Old Standard TT", Georgia, serif; color: #7a2318; }
+  .sheet .foot i { display: block; font: italic 14px/1.3 "Old Standard TT", Georgia, serif; color: #6f6152; }
+  .sheet .foot .arch { width: 112px; padding: 20px 9px 9px; border: 1.5px solid #a8792a; border-radius: 56px 56px 8px 8px; background: #fbf3e2; position: relative; }
+  .sheet .foot .arch::before { content: ''; position: absolute; inset: 3px; border: .6px solid #a8792a; border-radius: 53px 53px 6px 6px; opacity: .7; }
+  .sheet .foot .arch::after { content: '☦'; position: absolute; top: -13px; left: 50%; transform: translateX(-50%); width: 22px; text-align: center; background: #fffdf7; color: #7a2318; font: 18px/22px "Old Standard TT", Georgia, serif; }
+  .sheet .foot .qr { position: relative; background: #fff; border-radius: 6px; padding: 4px; }
+  .sheet .foot .qr svg { display: block; width: 100%; height: auto; }
+  @media print {
+    @page { size: A4; margin: 0; }
+    body.psmode > *:not(.psv) { display: none !important; }
+    body.psmode { background: #fff; }
+    body.psmode .psv { position: static; background: none; padding: 0; overflow: visible; }
+    body.psmode .psv .bar { display: none; }
+    body.psmode .sheet { box-shadow: none; zoom: 1 !important; transform: none !important; margin: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  }
   @media print {
     body { background: #fff; } .tabs, .ntools, .back, .noprint { display: none !important; }
     .wrap { padding: 0; max-width: none; } .note { border: none; background: #fff; color: #000; }
@@ -184,6 +264,21 @@
         <p class="sub">Оберіть дату — число показує, скільки імен подано</p>
         <div class="card"><div class="mhead"><button data-m="-1" aria-label="Попередній місяць">‹</button><b class="mt"></b><button data-m="1" aria-label="Наступний місяць">›</button></div>
           <div class="cal" id="calNotes"></div></div>
+        <details class="card" id="pBox"><summary class="psum">Загальна записка за період</summary>
+          <p class="sub" style="margin:10px 0">Усі імена за кілька днів — окремо для кожної треби.</p>
+          <div class="quick" id="pQuick">
+            <button class="btn" data-q="week">Цей тиждень</button>
+            <button class="btn" data-q="next">Наступний тиждень</button>
+            <button class="btn" data-q="7">Наступні 7 днів</button>
+            <button class="btn" data-q="month">Цей місяць</button>
+          </div>
+          <div class="f2d">
+            <div class="fld"><label>З</label><input type="date" id="pFrom"></div>
+            <div class="fld"><label>По</label><input type="date" id="pTo"></div>
+          </div>
+          <button class="main" id="pGo">Сформувати</button>
+          <p class="err" id="pErr"></p>
+        </details>
         <div id="dayList"></div>
       </div>
       <div id="noteView" class="hidden">
@@ -203,9 +298,27 @@
       <p class="sub">Натисніть на день, щоб поставити або прибрати службу</p>
       <div class="card"><div class="mhead"><button data-m="-1" aria-label="Попередній місяць">‹</button><b class="mt"></b><button data-m="1" aria-label="Наступний місяць">›</button></div>
         <div class="cal" id="calSched"></div>
-        <p class="legend"><span class="mk" style="display:inline-block">Л</span> літургія · <span class="mk" style="display:inline-block">М</span> молебень · <span class="mk" style="display:inline-block">П</span> панахида · пунктир — змінено вручну</p>
+        <p class="legend"><span class="mk" style="display:inline-block">Л</span> літургія · <span class="mk" style="display:inline-block">М</span> молебень · <span class="mk" style="display:inline-block">П</span> панахида · <span class="mk" style="display:inline-block">І</span> інша служба із записками · пунктир — змінено вручну</p>
       </div>
       <div class="card hidden" id="dayEdit"></div>
+      <div class="card noprint">
+        <p class="lbl" style="margin:0 0 8px">📅 Свята, пам’ять святих і читання</p>
+        <p class="legend" style="margin:0 0 8px">Підтягуються самі з календаря blagovist.info щоночі на 2 місяці вперед.</p>
+        <button class="btn" id="calSync" style="width:100%">Оновити зараз</button>
+        <p class="legend" id="calMsg" style="margin:6px 0 0"></p>
+      </div>
+      <div class="card noprint">
+        <p class="lbl" style="margin:0 0 8px">🖨 Розклад на тиждень для друку</p>
+        <div class="grid2"><button class="btn" id="pwThis">Цей тиждень</button><button class="btn" id="pwNext">Наступний тиждень</button></div>
+        <p class="legend" style="margin:8px 0 0">Аркуш A4 для дошки оголошень. Краще друкувати з комп’ютера.</p>
+      </div>
+      <details class="card" id="tplBox"><summary class="psum">Звичайний розклад тижня</summary>
+        <p class="sub" style="margin:10px 0">Так розклад виглядає щотижня. Окремий день (свято, зміна часу) змінюйте в календарі вище.</p>
+        <div class="wdsel" id="tplDays"></div>
+        <div id="tplEd"></div>
+        <button class="main" id="tplSave" style="margin-top:12px">Зберегти звичайний розклад</button>
+        <p class="err" id="tplErr"></p>
+      </details>
     </section>
 
     <!-- Отчёт -->
@@ -252,7 +365,7 @@
         <label class="chk"><input type="checkbox" id="sSor"><span>Приймати сорокоусти</span></label>
         <p class="legend">Якщо вимкнути, сорокоуст зникне з сайту для парафіян. Уже подані сорокоусти поминатимуться до кінця своїх літургій.</p>
       </div>
-      <div class="card">
+      <div class="card hidden">
         <p class="lbl">Звичайний розклад за днями тижня</p>
         <div class="wk" id="sWeek"></div>
         <p class="legend">Свята та винятки ставляться у вкладці «Розклад».</p>
@@ -282,6 +395,11 @@
           <div class="fld"><label id="fxRLabel">Новий PIN настоятеля (6–8 цифр, якщо змінюєте)</label><input type="password" inputmode="numeric" id="sRPin" maxlength="8" autocomplete="new-password"></div>
           <button class="main" id="saveFin">Зберегти</button>
           <p class="err" id="finErr"></p><p class="okmsg" id="finOk"></p>
+          <div id="tgBox" class="tgbox">
+            <p class="lbl" style="margin:0 0 6px">✈️ Записки в Telegram</p>
+            <p class="legend" style="margin:0 0 10px">Коли закінчується прийом записок на службу, бот надсилає в групу духовенства PDF записок — як для друку.</p>
+            <div id="tgState"></div>
+          </div>
         </div>
       </div>
       <div class="card" style="text-align:center;margin-top:14px">
@@ -324,7 +442,7 @@ window.google = { script: { run: (function mk(ok, fail) {
 var $ = function (id) { return document.getElementById(id); };
 var MON = ['Січень', 'Лютий', 'Березень', 'Квітень', 'Травень', 'Червень', 'Липень', 'Серпень', 'Вересень', 'Жовтень', 'Листопад', 'Грудень'];
 var WD = ['пн', 'вт', 'ср', 'чт', 'пт', 'сб', 'нд'];
-var SH = { lit: 'Л', mol: 'М', pan: 'П' };
+var SH = { lit: 'Л', mol: 'М', pan: 'П', oth: 'І' };
 var A = { pin: '', today: '', ym: '', month: {}, sel: '', settings: null, services: [], trebas: [], tab: 'tabNotes', font: 28 };
 
 /* ── связь с сервером ── */
@@ -429,7 +547,7 @@ function drawCal(box, mode) {
     if (mode === 'notes') { if (info.names) h += '<span class="badge">' + info.names + '</span>'; }
     else {
       h += '<span class="marks">';
-      ['lit', 'mol', 'pan'].forEach(function (s) { if (info[s]) h += '<span class="mk">' + SH[s] + '</span>'; });
+      ['lit', 'mol', 'pan', 'oth'].forEach(function (s) { if (info[s]) h += '<span class="mk">' + SH[s] + '</span>'; });
       h += '</span>';
     }
     c.innerHTML = h;
@@ -444,10 +562,38 @@ function openDay(key) {
   A.sel = key; renderCals();
   var box = $('dayList');
   box.innerHTML = '<div class="card"><p class="sub" style="margin:0">Завантаження…</p></div>';
-  call('clergyList', [A.pin, key], function (r) {
-    if (!r.ok) { box.innerHTML = ''; return; }
+  call('clergyList', [A.pin, key], function (r) { showGroups(r); });
+}
+/* ── загальна записка за період ── */
+function openRange(from, to) {
+  var box = $('dayList'); $('pErr').textContent = '';
+  if (!from || !to) { $('pErr').textContent = 'Оберіть період'; return; }
+  box.innerHTML = '<div class="card"><p class="sub" style="margin:0">Завантаження…</p></div>';
+  call('clergyRange', [A.pin, from, to], function (r) {
+    if (!r.ok) { box.innerHTML = ''; $('pErr').textContent = r.error || 'Помилка'; return; }
+    showGroups(r); box.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+}
+function pPeriod(q) {
+  var t = new Date(A.today + 'T00:00:00Z'), mon = new Date(t.getTime() - ((t.getUTCDay() + 6) % 7) * 864e5), f, to;
+  if (q === 'week') { f = mon; to = new Date(mon.getTime() + 6 * 864e5); }
+  else if (q === 'next') { f = new Date(mon.getTime() + 7 * 864e5); to = new Date(mon.getTime() + 13 * 864e5); }
+  else if (q === '7') { f = t; to = new Date(t.getTime() + 6 * 864e5); }
+  else { f = new Date(Date.UTC(t.getUTCFullYear(), t.getUTCMonth(), 1)); to = new Date(Date.UTC(t.getUTCFullYear(), t.getUTCMonth() + 1, 0)); }
+  $('pFrom').value = ymd(f); $('pTo').value = ymd(to);
+}
+[].forEach.call(document.querySelectorAll('#pQuick .btn'), function (b) {
+  b.onclick = function () { pPeriod(b.getAttribute('data-q')); openRange($('pFrom').value, $('pTo').value); };
+});
+$('pGo').onclick = function () { openRange($('pFrom').value, $('pTo').value); };
+$('pBox').addEventListener('toggle', function () { if ($('pBox').open && !$('pFrom').value) pPeriod('week'); });
+function showGroups(r) {
+  var box = $('dayList');
+  if (!r.ok) { box.innerHTML = ''; return; }
+  {
     A.list = r;
-    var h = '<div class="card"><h1 style="font-size:19px">' + esc(cap(r.label)) + '</h1>' +
+    var h = (r.reads ? '<div class="card reads"><p class="lbl" style="margin:0 0 6px">📖 Богослужбові читання Святого Письма' + (r.key === A.today ? ' на сьогодні' : '') + ':</p><p style="margin:0;white-space:pre-line">' + esc(r.reads) + '</p></div>' : '') +
+      '<div class="card"><h1 style="font-size:19px">' + esc(cap(r.label)) + '</h1>' +
       (r.title ? '<p class="sub" style="margin:0 0 10px">' + esc(r.title) + '</p>' : '<div style="height:8px"></div>') + '<div class="groups">';
     var any = false;
     r.groups.forEach(function (g, i) {
@@ -455,12 +601,12 @@ function openDay(key) {
       h += '<button class="grp' + (g.names.length ? '' : ' empty') + '" data-g="' + i + '"><span>' + esc(g.treba) +
         '<small>' + esc(about(g.kind).toLowerCase()) + '</small></span><span class="cnt">' + g.names.length + '</span></button>';
     });
-    h += '</div>' + (any ? '' : '<p class="sub" style="margin:10px 0 0">На цей день записок поки немає.</p>') + '</div>';
+    h += '</div>' + (any ? '' : '<p class="sub" style="margin:10px 0 0">' + (r.range ? 'За цей період записок немає.' : 'На цей день записок поки немає.') + '</p>') + '</div>';
     box.innerHTML = h;
     [].forEach.call(box.querySelectorAll('.grp'), function (b) {
       b.onclick = function () { var g = r.groups[Number(b.getAttribute('data-g'))]; if (g.names.length || (g.hidden && g.hidden.length)) { showNote(g, r); window.scrollTo(0, 0); } };
     });
-  });
+  }
 }
 function showNote(g, r) {
   A.cur = { g: g, r: r };
@@ -500,7 +646,7 @@ function hideName(uid, hide) {
     if (!res.ok) alert(res.error || 'Помилка');
     // після зміни перечитуємо список із таблиці — показуємо те, що там насправді
     var y = window.scrollY, r0 = A.cur.r;
-    call('clergyList', [A.pin, r0.key], function (r) {
+    call(r0.range ? 'clergyRange' : 'clergyList', r0.range ? [A.pin, r0.from, r0.to] : [A.pin, r0.key], function (r) {
       if (!r.ok) return;
       A.list = r;
       var ng = r.groups.filter(function (z) { return z.treba === g.treba && z.kind === g.kind; })[0];
@@ -608,25 +754,83 @@ function drawPages(B) {
 }
 
 /* ── расписание: правка дня ── */
+/* ── редактор служб (і для дня, і для звичайного тижня) ── */
+// значення: тип служби, а для інших служб — 'oth:' + які записки приймати
+var STYPES = [['lit', 'Літургія · проскомидія, замовна, сорокоуст'], ['mol', 'Молебень · записки за здоров’я'],
+  ['pan', 'Панахида · записки за упокій'], ['oth:', 'Інша служба · без записок'], ['oth:z', 'Інша служба · записки за здоров’я'],
+  ['oth:u', 'Інша служба · записки за упокій'], ['oth:zu', 'Інша служба · за здоров’я і за упокій']];
+function stVal(x) { return x.type || ('oth:' + (x.notes || '')); }
+var SPRESET = { lit: ['08:00', 'Божественна Літургія'], mol: ['09:00', 'Молебень'], pan: ['09:30', 'Панахида'], '': ['17:00', 'Вечірнє богослужіння'] };
+function itemsEditor(box, items) {
+  var list = items.map(function (x) { return { t: x.t, n: x.n, type: x.type || '', notes: x.notes || '' }; });
+  function draw() {
+    var h = '<div class="its">';
+    list.forEach(function (x, i) {
+      var hasLit = list.some(function (y, j) { return j !== i && y.type === 'lit'; });
+      h += '<div class="it ' + (x.type || (x.notes ? 'othn' : 'oth')) + '" data-i="' + i + '"><input type="text" class="tm" inputmode="decimal" maxlength="5" placeholder="—" value="' + esc(x.t) + '">' +
+        '<input type="text" class="nm" maxlength="120" value="' + esc(x.n) + '" placeholder="Назва служби">' +
+        '<button type="button" class="rm" aria-label="Прибрати">×</button><select class="ty">' +
+        STYPES.map(function (o) { return '<option value="' + o[0] + '"' + (o[0] === stVal(x) ? ' selected' : '') + (o[0] === 'lit' && hasLit ? ' disabled' : '') + '>' + esc(o[1]) + '</option>'; }).join('') +
+        '</select></div>';
+    });
+    if (!list.length) h += '<p class="sub" style="margin:0">Служб немає.</p>';
+    var litOn = list.some(function (y) { return y.type === 'lit'; });
+    h += '</div><div class="addsv"><button type="button" class="btn" data-a="lit"' + (litOn ? ' disabled title="Літургія вже є"' : '') + '>+ Літургія</button><button type="button" class="btn" data-a="mol">+ Молебень</button>' +
+      '<button type="button" class="btn" data-a="pan">+ Панахида</button><button type="button" class="btn" data-a="">+ Інша служба</button></div>';
+    box.innerHTML = h;
+    [].forEach.call(box.querySelectorAll('.it'), function (r) {
+      var i = Number(r.getAttribute('data-i'));
+      r.querySelector('.tm').oninput = function () { list[i].t = this.value.replace(/[.,\-\s]/g, ':'); };
+      r.querySelector('.nm').oninput = function () { list[i].n = this.value; };
+      r.querySelector('.ty').onchange = function () {
+        var v = this.value;
+        if (v.indexOf('oth:') === 0) { list[i].type = ''; list[i].notes = v.slice(4); } else { list[i].type = v; list[i].notes = ''; }
+        draw();
+      };
+      r.querySelector('.rm').onclick = function () { list.splice(i, 1); draw(); };
+    });
+    [].forEach.call(box.querySelectorAll('.addsv .btn'), function (b) {
+      b.onclick = function () {
+        var ty = b.getAttribute('data-a'), p = SPRESET[ty];
+        list.push({ t: p[0], n: p[1], type: ty, notes: '' }); draw();
+        var last = box.querySelectorAll('.it .nm'); if (last.length) last[last.length - 1].focus();
+      };
+    });
+  }
+  draw();
+  return {
+    get: function () {
+      return list.filter(function (x) { return String(x.n).trim(); }).map(function (x) {
+        var o = { t: x.t ? ('0' + x.t).slice(-5) : '', n: String(x.n).trim(), type: x.type }; if (!x.type && x.notes && x.t) o.notes = x.notes; return o; })
+        ;
+    },
+    bad: function () { return list.some(function (x) { return String(x.n).trim() && (x.t || x.type) && !/^([01]?\d|2[0-3]):[0-5]\d$/.test(x.t || ''); }); }
+  };
+}
 function renderDayEdit() {
   var box = $('dayEdit'), key = A.sel, info = A.month[key];
   if (!info || key.slice(0, 7) !== A.ym) { box.classList.add('hidden'); return; }
   box.classList.remove('hidden');
-  var v = { lit: info.lit, mol: info.mol, pan: info.pan };
   var h = '<h1 style="font-size:19px">' + esc(cap(longLabel(key))) + '</h1><p class="sub" style="margin:0 0 10px">' +
-    (info.names ? 'Подано імен: ' + info.names : 'Записок поки немає') + '</p><div class="svcs">';
-  A.services.forEach(function (s) {
-    h += '<button class="tog' + (v[s.id] ? ' on' : '') + '" data-s="' + s.id + '"><span>' + esc(s.name) + '</span><span class="sw"></span></button>';
-  });
-  h += '</div><div class="fld" style="margin-top:12px"><label>Свято (необов’язково)</label><input type="text" id="dTitle" maxlength="60" placeholder="Покрова Пресвятої Богородиці"></div>' +
-    '<button class="main" id="dSave">Зберегти</button>' +
-    (info.changed ? '<button class="btn" id="dReset" style="width:100%;margin-top:8px">Повернути як зазвичай</button>' : '') +
+    (info.names ? 'Подано імен: ' + info.names : 'Записок поки немає') + (info.changed ? ' · змінено вручну' : '') + '</p>' +
+    '<p class="legend hidden" id="dCal" style="margin:0 0 10px">Сірий текст — з календаря blagovist.info, він підставляється сам. Щоб замінити, впишіть свій.</p>' +
+    '<div class="fld"><label>Свято / назва дня (необов’язково)</label><input type="text" id="dTitle" maxlength="80" placeholder="Покрова Пресвятої Богородиці"></div>' +
+    '<div class="fld"><label>Пам’ять святих або примітка (необов’язково)</label><textarea class="sub2" id="dSub" maxlength="300" placeholder="Мчч. Сергія і Вакха…"></textarea></div>' +
+    '<div class="fld"><label>Богослужбові читання (для батюшок і Telegram)</label><textarea class="sub2" id="dReads" maxlength="2000" placeholder="На утрені: Лк. 24:1–12. На Літургії: Еф. 2:4–10. Лк. 8:41–56."></textarea>' +
+    '<p class="legend" style="margin:4px 0 0">Надійде в Telegram до початку літургії та вечірньої служби (Вечірнє богослужіння, Всенічне бдіння).</p></div>' +
+    '<p class="lbl" style="margin:4px 0 8px">Служби</p><div id="dItems"></div>' +
+    '<button class="main" id="dSave" style="margin-top:14px">Зберегти</button>' +
+    (info.changed ? '<button class="btn" id="dReset" style="width:100%;margin-top:8px">Повернути звичайний розклад</button>' : '') +
     '<p class="err" id="dErr"></p>';
   box.innerHTML = h;
-  $('dTitle').value = info.title || '';
-  [].forEach.call(box.querySelectorAll('.tog'), function (b) {
-    b.onclick = function () { var s = b.getAttribute('data-s'); v[s] = !v[s]; b.classList.toggle('on', v[s]); };
-  });
+  // власний текст батюшок — у полях; із календаря blagovist.info — сірим підказкою (піде, якщо поле порожнє)
+  var own = info.own || {}, au = info.auto || {};
+  $('dTitle').value = own.title || ''; $('dSub').value = own.sub || ''; $('dReads').value = own.reads || '';
+  if (au.title) $('dTitle').placeholder = au.title;
+  if (au.sub) $('dSub').placeholder = au.sub;
+  if (au.reads) $('dReads').placeholder = au.reads;
+  if (au.title || au.sub || au.reads) $('dCal').classList.remove('hidden');
+  var ed = itemsEditor($('dItems'), info.items || []);
   var save = function (val) {
     $('dSave').disabled = true; $('dSave').textContent = 'Зберігаємо…';
     call('clergySaveDay', [A.pin, key, val], function (r) {
@@ -636,12 +840,154 @@ function renderDayEdit() {
       setTimeout(function () { if ($('dSave')) $('dSave').textContent = 'Зберегти'; }, 1500);
     });
   };
-  $('dSave').onclick = function () { save({ lit: v.lit, mol: v.mol, pan: v.pan, title: $('dTitle').value }); };
+  $('dSave').onclick = function () {
+    if (ed.bad()) { $('dErr').textContent = 'Вкажіть час для кожної служби'; return; }
+    save({ items: ed.get(), title: $('dTitle').value, sub: $('dSub').value, reads: $('dReads').value });
+  };
   if ($('dReset')) $('dReset').onclick = function () {
-    var dow = new Date(key + 'T00:00:00Z').getUTCDay(), w = A.settings.week;
-    save({ lit: w.lit.indexOf(dow) >= 0, mol: w.mol.indexOf(dow) >= 0, pan: w.pan.indexOf(dow) >= 0, title: '' });
+    if (confirm('Повернути цей день до звичайного розкладу? Свято й примітка теж приберуться.')) save({ reset: true });
   };
 }
+/* ── друк розкладу на тиждень ── */
+var DOWP = ['Неділя', 'Понеділок', 'Вівторок', 'Середа', 'Четвер', 'П’ятниця', 'Субота'];
+var MONP = ['січня', 'лютого', 'березня', 'квітня', 'травня', 'червня', 'липня', 'серпня', 'вересня', 'жовтня', 'листопада', 'грудня'];
+function oldStyleP(key) {
+  var d = new Date(Date.UTC(+key.slice(0, 4), +key.slice(5, 7) - 1, +key.slice(8, 10)) - 13 * 864e5);
+  return d.getUTCDate() + ' ' + MONP[d.getUTCMonth()];
+}
+// QR у стилі листівок: круглі точки, заокруглені «очі», бордовий колір
+function qrSvg(url) {
+  if (!url || A.isExec || !window.qrcode) return '';
+  var q = qrcode(0, 'M'); q.addData(url); q.make();
+  var n = q.getModuleCount(), u = 10, pad = 1, size = (n + 2 * pad) * u, out = [];
+  var eyes = [[0, 0], [0, n - 7], [n - 7, 0]];
+  var inEye = function (r, c) { return eyes.some(function (e) { return r >= e[0] && r < e[0] + 7 && c >= e[1] && c < e[1] + 7; }); };
+  for (var r = 0; r < n; r++) for (var c = 0; c < n; c++) {
+    if (q.isDark(r, c) && !inEye(r, c)) out.push('<circle cx="' + ((c + pad + .5) * u) + '" cy="' + ((r + pad + .5) * u) + '" r="4.6"/>');
+  }
+  var ey = eyes.map(function (e) {
+    var x = (e[1] + pad) * u, y = (e[0] + pad) * u;
+    return '<rect x="' + (x + 5) + '" y="' + (y + 5) + '" width="60" height="60" rx="20" fill="none" stroke="#7a2318" stroke-width="10"/>' +
+      '<rect x="' + (x + 20) + '" y="' + (y + 20) + '" width="30" height="30" rx="10" fill="#7a2318"/>';
+  }).join('');
+  return '<svg viewBox="0 0 ' + size + ' ' + size + '" xmlns="http://www.w3.org/2000/svg"><g fill="#5b1a10">' + out.join('') + '</g>' + ey + '</svg>';
+}
+function footHtml() {
+  var qr = qrSvg(A.url), addr = esc(String(A.url || '').replace(/^https?:\/\//, '').replace(/\/$/, ''));
+  if (!qr) return addr ? '<div class="foot"><div class="fl"><b>Записки онлайн</b><i>' + addr + '</i></div></div>' : '';
+  return '<div class="foot"><div class="fl"><b>Записки</b><i>онлайн, з телефона</i></div>' +
+    '<div class="arch"><div class="qr">' + qr + '</div></div>' +
+    '<div class="fr"><b>Наведіть камеру</b><i>телефона на код</i></div></div>';
+}
+function printWeek(add) {
+  var t = new Date(A.today + 'T00:00:00Z'), mon = new Date(t.getTime() - ((t.getUTCDay() + 6) % 7) * 864e5 + add * 7 * 864e5);
+  var btn = add ? $('pwNext') : $('pwThis'), txt = btn.textContent; btn.textContent = 'Готуємо…'; btn.disabled = true;
+  call('clergyWeek', [A.pin, ymd(mon)], function (r) {
+    btn.textContent = txt; btn.disabled = false;
+    if (!r.ok) { alert(r.error || 'Помилка'); return; }
+    var a = r.days[0], b = r.days[6];
+    var rows = r.days.map(function (d) {
+      var red = d.dow === 0 || d.title;
+      var h = '<tr class="' + (red ? 'red' : '') + '"><td class="dd"><b>' + DOWP[d.dow] + '</b><span>' + d.day + ' ' + MONP[d.mon] + '</span><small>' + oldStyleP(d.key) + ' за ст. ст.</small></td><td>';
+      if (d.title) h += '<div class="ft">' + esc(d.title) + '</div>';
+      if (d.sub) h += '<div class="sb">' + esc(d.sub) + '</div>';
+      if (!d.items.length) h += '<div class="none">Богослужінь немає</div>';
+      d.items.forEach(function (it) { h += '<div class="rw ' + (it.type || '') + (it.t ? '' : ' nt') + '"><b>' + (it.t ? esc(it.t) : '✦') + '</b><span>' + esc(it.n) + '</span></div>'; });
+      return h + '</td></tr>';
+    }).join('');
+    var ov = document.createElement('div'); ov.className = 'psv';
+    ov.innerHTML = '<div class="sheet"><div class="in"><span class="co a">❦</span><span class="co b">❦</span><span class="co c">❦</span><span class="co d">❦</span>' +
+      '<div class="fit"><div class="hd"><div class="x">☦</div><div class="tm">' + esc(r.temple) + '</div><h1>Розклад богослужінь</h1>' +
+      '<div class="wkr">' + a.day + (a.mon === b.mon ? '' : ' ' + MONP[a.mon]) + ' – ' + b.day + ' ' + MONP[b.mon] + ' ' + b.key.slice(0, 4) + ' р.</div></div>' +
+      '<div class="orn2">✤</div><table>' + rows + '</table></div>' +
+      footHtml() + '</div></div>' +
+      '<div class="bar"><button type="button" class="x">Закрити</button><button type="button" class="tg">✈️ У Telegram</button><button type="button" class="go">Друкувати</button></div>' +
+      '<div class="tgmsg"></div>';
+    document.body.appendChild(ov); document.body.classList.add('psmode');
+    // якщо служб багато — трохи зменшуємо, щоб усе влізло на один аркуш
+    var fit = ov.querySelector('.fit'), inner = ov.querySelector('.in');
+    // підганяємо розмір під аркуш: мало служб — крупніше, багато — дрібніше
+    var room = inner.clientHeight - 60 - 150, hgt = fit.scrollHeight;
+    // масштаб через transform (так його бачить і друк, і знімок для Telegram)
+    var kf = Math.max(0.6, Math.min(1.3, room / hgt));
+    fit.style.width = (100 / kf) + '%'; fit.style.transformOrigin = 'top left'; fit.style.transform = 'scale(' + kf.toFixed(3) + ')';
+    // на телефоні аркуш зменшуємо до ширини екрана
+    var sh = ov.querySelector('.sheet'), k = Math.min(1, (window.innerWidth - 24) / 794);
+    if (k < 1) { sh.style.zoom = k; }
+    ov.querySelector('.x').onclick = function () { document.body.removeChild(ov); document.body.classList.remove('psmode'); };
+    ov.querySelector('.go').onclick = function () { window.print(); };
+    ov.querySelector('.tg').onclick = function () { sendSheet(ov, sh, ymd(mon)); };
+  });
+}
+// аркуш → PDF у браузері (точно як на екрані) → скрипт надсилає в групу й запам'ятовує для недільної розсилки
+function loadJs(src) {
+  return new Promise(function (ok, bad) {
+    if (document.querySelector('script[src="' + src + '"]')) return ok();
+    var e = document.createElement('script'); e.src = src; e.onload = ok; e.onerror = bad; document.head.appendChild(e);
+  });
+}
+function sendSheet(ov, sh, from) {
+  var btn = ov.querySelector('.tg'), msg = ov.querySelector('.tgmsg');
+  var say = function (t) { msg.innerHTML = t ? '<span>' + esc(t) + '</span>' : ''; };
+  btn.disabled = true; btn.textContent = 'Готуємо…'; say('');
+  var z = sh.style.zoom; sh.style.zoom = '';
+  Promise.all([loadJs('https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js'),
+    loadJs('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js')])
+    .then(function () { return document.fonts ? document.fonts.ready : null; })
+    .then(function () { return html2canvas(sh, { scale: 2, backgroundColor: '#fffdf7', useCORS: true, logging: false }); })
+    .then(function (canvas) {
+      sh.style.zoom = z;
+      var pdf = new window.jspdf.jsPDF({ unit: 'pt', format: 'a4', compress: true });
+      pdf.addImage(canvas.toDataURL('image/jpeg', 0.9), 'JPEG', 0, 0, 595.28, 841.89);
+      var b64 = pdf.output('datauristring').split(',')[1];
+      btn.textContent = 'Надсилаємо…';
+      call('clergyWeekSend', [A.pin, from, b64], function (r) {
+        btn.disabled = false; btn.textContent = '✈️ У Telegram';
+        say(r.ok ? 'Надіслано в групу. Цей аркуш піде й у недільній розсилці.' : (r.error || 'Не вдалося надіслати'));
+      });
+    })
+    .catch(function () {
+      sh.style.zoom = z; btn.disabled = false; btn.textContent = '✈️ У Telegram';
+      say('Не вдалося підготувати PDF. Перевірте інтернет і спробуйте ще раз.');
+    });
+}
+$('calSync').onclick = function () {
+  $('calSync').disabled = true; $('calSync').textContent = 'Завантажуємо… (до хвилини)'; $('calMsg').textContent = '';
+  call('clergyCalSync', [A.pin], function (r) {
+    $('calSync').disabled = false; $('calSync').textContent = 'Оновити зараз';
+    $('calMsg').textContent = r.ok ? 'Оновлено днів: ' + r.count : (r.error || 'Помилка');
+    if (r.ok) loadMonth(function () { renderDayEdit(); });
+  });
+};
+$('pwThis').onclick = function () { printWeek(0); };
+$('pwNext').onclick = function () { printWeek(1); };
+
+/* ── звичайний розклад тижня ── */
+var TPL = null, tplDay = 1, tplEd = null;
+function renderTpl() {
+  if (!TPL) TPL = JSON.parse(JSON.stringify(A.settings.tpl || {}));
+  var order = [1, 2, 3, 4, 5, 6, 0], h = '';
+  order.forEach(function (d, i) { h += '<button type="button" data-d="' + d + '" class="' + (d === tplDay ? 'on' : '') + '">' + WD[i] + '</button>'; });
+  $('tplDays').innerHTML = h;
+  [].forEach.call($('tplDays').querySelectorAll('button'), function (b) {
+    b.onclick = function () { TPL[tplDay] = tplEd.get(); tplDay = Number(b.getAttribute('data-d')); renderTpl(); };
+  });
+  tplEd = itemsEditor($('tplEd'), TPL[tplDay] || []);
+}
+$('tplBox').addEventListener('toggle', function () { if ($('tplBox').open) { TPL = null; renderTpl(); } });
+$('tplSave').onclick = function () {
+  if (tplEd.bad()) { $('tplErr').textContent = 'Вкажіть час для кожної служби'; return; }
+  TPL[tplDay] = tplEd.get(); $('tplErr').textContent = '';
+  $('tplSave').disabled = true; $('tplSave').textContent = 'Зберігаємо…';
+  call('clergySaveTpl', [A.pin, TPL], function (r) {
+    $('tplSave').disabled = false;
+    if (!r.ok) { $('tplSave').textContent = 'Зберегти звичайний розклад'; $('tplErr').textContent = r.error || 'Помилка'; return; }
+    A.settings = r.settings; TPL = null; renderTpl();
+    $('tplSave').textContent = 'Збережено ✓';
+    setTimeout(function () { $('tplSave').textContent = 'Зберегти звичайний розклад'; }, 1500);
+    loadMonth(function () { renderDayEdit(); });
+  });
+};
 
 /* ── настройки ── */
 var W = null;
@@ -797,6 +1143,7 @@ function renderFin() {
   var s = A.settings, locked = A.rectorSet && !A.rpin;
   $('fxLocked').classList.toggle('hidden', !locked);
   $('fxOpen').classList.toggle('hidden', locked);
+  if (!locked) tgLoad();
   $('fxNoRector').classList.toggle('hidden', A.rectorSet);
   $('fxRLabel').textContent = A.rectorSet ? 'Новий PIN настоятеля (6–8 цифр, якщо змінюєте)' : 'PIN настоятеля (6–8 цифр)';
   $('fxInfo').textContent = 'Банка: ' + (s.bankUrl || '—') + ' · Картка: ' + (s.card || '—') + (s.cardName ? ' (' + s.cardName + ')' : '');
@@ -812,6 +1159,82 @@ $('fxUnlock').onclick = function () {
     A.rpin = p; $('fxGate').value = ''; renderFin();
   });
 };
+/* ── Telegram ── */
+function tgLoad() {
+  if (A.rectorSet && !A.rpin) return;
+  $('tgState').innerHTML = '<p class="legend">Завантаження…</p>';
+  call('clergyTg', [A.pin, A.rpin], tgDraw);
+}
+function tgDraw(r) {
+  var box = $('tgState');
+  if (!r.ok) { box.innerHTML = '<p class="err">' + esc(r.error || 'Помилка') + '</p>'; return; }
+  var h = '';
+  if (r.hasToken && r.chat) {
+    h += '<p class="st">Група: <b>' + esc(r.title || r.chat) + '</b></p>' +
+      '<label class="chk"><input type="checkbox" id="tgOn"' + (r.on ? ' checked' : '') + '><span>Надсилати записки після закінчення прийому</span></label>' +
+      '<label class="chk" style="margin-top:8px"><input type="checkbox" id="tgWeek"' + (r.week ? ' checked' : '') + '><span>Щонеділі об 11:00 — розклад на наступний тиждень (PDF)</span></label>' +
+      '<label class="chk" style="margin-top:8px"><input type="checkbox" id="tgRep"' + (r.report ? ' checked' : '') + '><span>1-го числа о 9:00 — звіт за минулий місяць</span></label>' +
+      (r.on && !r.trigger ? '<p class="warn" style="margin-top:8px">Автоматична перевірка ще не запущена. Відкрийте Apps Script, оберіть функцію <b>setupTelegram</b> і натисніть ▶ «Виконати» (один раз).</p>' : '') +
+      '<div class="grid2" style="margin-top:10px"><button class="btn" id="tgTest">Надіслати тест</button><button class="btn" id="tgWk">Розклад зараз</button></div>' +
+      '<div class="grid2" style="margin-top:8px"><button class="btn" id="tgRp">Звіт зараз</button><button class="btn" id="tgRe">Змінити групу</button></div>' +
+      '<button class="link" id="tgForget" style="color:var(--muted);font-size:14px">Відключити бота</button>';
+  } else {
+    h += '<ol><li>У Telegram відкрийте <b>@BotFather</b> → <b>/newbot</b> → придумайте назву. Він надішле <b>токен</b>.</li>' +
+      '<li>Створіть групу духовенства (або візьміть наявну) і <b>додайте туди бота</b>.</li>' +
+      '<li>Вставте токен нижче й натисніть «Знайти групу».</li></ol>' +
+      '<div class="fld"><label>Токен бота</label><input type="password" id="tgToken" autocomplete="off" placeholder="' + (r.hasToken ? 'збережено — можна не вводити' : '123456789:AA…') + '"></div>' +
+      '<button class="btn" id="tgFind" style="width:100%">Знайти групу</button>';
+  }
+  h += '<div class="tgchats" id="tgChats"></div><p class="err" id="tgErr"></p><p class="okmsg" id="tgOk"></p>';
+  box.innerHTML = h;
+  var err = function (t) { $('tgErr').textContent = t || ''; $('tgOk').textContent = ''; };
+  if ($('tgFind')) $('tgFind').onclick = function () {
+    err(''); $('tgFind').disabled = true; $('tgFind').textContent = 'Шукаємо…';
+    call('clergyTgFind', [A.pin, A.rpin, $('tgToken').value], function (f) {
+      $('tgFind').disabled = false; $('tgFind').textContent = 'Знайти групу';
+      if (!f.ok) return err(f.error);
+      if (!f.chats.length) return err('Бот @' + f.bot + ' ще не бачить жодної групи. Додайте його в групу (або видаліть і додайте знову), напишіть там будь-що й натисніть ще раз.');
+      var c = $('tgChats'); c.innerHTML = '<p class="legend" style="margin:0">Оберіть групу для бота @' + esc(f.bot) + ':</p>';
+      f.chats.forEach(function (x) {
+        var b = el('button', 'btn'); b.textContent = x.title;
+        b.onclick = function () { call('clergyTgSave', [A.pin, A.rpin, { chat: x.id, title: x.title, on: true }], tgDraw); };
+        c.appendChild(b);
+      });
+    });
+  };
+  if ($('tgOn')) $('tgOn').onchange = function () { call('clergyTgSave', [A.pin, A.rpin, { on: $('tgOn').checked }], tgDraw); };
+  if ($('tgRep')) $('tgRep').onchange = function () { call('clergyTgSave', [A.pin, A.rpin, { report: $('tgRep').checked }], tgDraw); };
+  if ($('tgRp')) $('tgRp').onclick = function () {
+    err(''); $('tgRp').disabled = true; $('tgRp').textContent = 'Надсилаємо…';
+    call('clergyTgReport', [A.pin, A.rpin], function (t) {
+      $('tgRp').disabled = false; $('tgRp').textContent = 'Звіт зараз';
+      if (!t.ok) return err(t.error);
+      $('tgOk').textContent = 'Звіт за минулий місяць надіслано.';
+    });
+  };
+  if ($('tgWeek')) $('tgWeek').onchange = function () { call('clergyTgSave', [A.pin, A.rpin, { week: $('tgWeek').checked }], tgDraw); };
+  if ($('tgWk')) $('tgWk').onclick = function () {
+    err(''); $('tgWk').disabled = true; $('tgWk').textContent = 'Надсилаємо…';
+    call('clergyTgWeek', [A.pin, A.rpin], function (t) {
+      $('tgWk').disabled = false; $('tgWk').textContent = 'Розклад зараз';
+      if (!t.ok) return err(t.error);
+      $('tgOk').textContent = 'Розклад на наступний тиждень надіслано.';
+    });
+  };
+  if ($('tgRe')) $('tgRe').onclick = function () { tgDraw({ ok: true, hasToken: true, chat: '' }); };
+  if ($('tgForget')) $('tgForget').onclick = function () {
+    if (confirm('Відключити бота? Записки перестануть надходити в Telegram.')) call('clergyTgSave', [A.pin, A.rpin, { forget: true }], tgDraw);
+  };
+  if ($('tgTest')) $('tgTest').onclick = function () {
+    err(''); $('tgTest').disabled = true; $('tgTest').textContent = 'Надсилаємо…';
+    call('clergyTgTest', [A.pin, A.rpin], function (t) {
+      $('tgTest').disabled = false; $('tgTest').textContent = 'Надіслати тест';
+      if (!t.ok) return err(t.error);
+      $('tgOk').textContent = 'Надіслано — перевірте групу в Telegram.';
+    });
+  };
+}
+
 $('saveFin').onclick = function () {
   var v = { bankUrl: $('sBank').value, card: $('sCard').value, cardName: $('sCardName').value,
     newPin: $('sPin').value.trim(), newRectorPin: $('sRPin').value.trim() };

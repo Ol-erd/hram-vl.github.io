@@ -31,7 +31,7 @@
   .card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 16px; margin-bottom: 12px; }
   .lbl { font-size: 13px; color: var(--muted); margin: 0 0 10px; letter-spacing: .02em; }
   .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
-  .chip { min-height: 48px; padding: 8px 10px; border-radius: 10px; border: 1px solid var(--line);
+  .chip { min-height: 48px; padding: 8px 4px; border-radius: 10px; border: 1px solid var(--line);
     background: transparent; color: var(--text); font: inherit; font-size: 16px; cursor: pointer; text-align: center; }
   .chip small { display: block; font-size: 12px; color: var(--muted); line-height: 1.3; }
   .chip.on { background: var(--gold-bg); border-color: var(--gold); }
@@ -71,9 +71,9 @@
   .copy button { flex: 0 0 auto; padding: 0 14px; border: 1px solid var(--line); border-radius: 10px; background: var(--card);
     color: var(--text); font: inherit; cursor: pointer; }
   .closed { text-align: center; color: var(--muted); }
-  .seg { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px; background: var(--card); border: 1px solid var(--line);
+  .seg { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px; background: var(--card); border: 1px solid var(--line);
     border-radius: 12px; padding: 4px; margin: 0 0 14px; }
-  .seg button { border: none; background: transparent; color: var(--muted); font: inherit; font-size: 15px; padding: 10px 4px; border-radius: 9px; cursor: pointer; }
+  .seg button { border: none; background: transparent; color: var(--muted); font: inherit; font-size: 13.5px; line-height: 1.2; padding: 9px 1px; border-radius: 9px; cursor: pointer; }
   .seg button.on { background: var(--gold-bg); color: var(--text); }
   .seg .cnt { display: inline-block; min-width: 20px; padding: 0 6px; border-radius: 99px; background: var(--red); color: var(--on-red); font-size: 12px; line-height: 20px; margin-left: 4px; }
   .pchips { display: flex; flex-wrap: wrap; gap: 6px; }
@@ -97,6 +97,69 @@
   .addrow input { flex: 1; min-width: 0; height: 46px; border: 1px solid var(--line); border-radius: 10px; padding: 0 12px; font: inherit; font-size: 17px; background: transparent; color: var(--text); }
   .addrow button { flex: 0 0 auto; padding: 0 14px; border: 1px solid var(--line); border-radius: 10px; background: var(--card); color: var(--text); font: inherit; cursor: pointer; }
   .note { padding: 14px 16px; }
+  /* розмір шрифту */
+  header { position: relative; }
+  .fs { width: max-content; margin: -8px 0 6px auto; display: flex; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; background: var(--card); }
+  .fs button { border: none; background: none; color: var(--muted); width: 34px; height: 34px; padding: 0; cursor: pointer; font-family: "Old Standard TT", Georgia, serif; line-height: 1; }
+  .fs button + button { border-left: 1px solid var(--line); }
+  .fs button.on { background: var(--gold-bg); color: var(--text); }
+  /* розклад */
+  :root { --parch1: #fffbf2; --parch2: #f7eedb; --orn: #b88a3e; }
+  @media (prefers-color-scheme: dark) { :root { --parch1: #2a231b; --parch2: #221c15; --orn: #c9a061; } }
+  .shero { position: relative; text-align: center; padding: 18px 14px 16px; margin: 0 0 14px; border-radius: 16px;
+    background: linear-gradient(180deg, var(--parch1), var(--parch2)); border: 1px solid var(--line); }
+  .shero::before, .shero::after, .sday::before, .sday::after { content: ''; position: absolute; width: 18px; height: 18px; border-color: var(--orn); border-style: solid; opacity: .8; pointer-events: none; }
+  .shero::before, .sday::before { top: 7px; left: 7px; border-width: 1.5px 0 0 1.5px; border-radius: 6px 0 0 0; }
+  .shero::after, .sday::after { bottom: 7px; right: 7px; border-width: 0 1.5px 1.5px 0; border-radius: 0 0 6px 0; }
+  .shero .k { font: italic 15px/1.3 "Old Standard TT", Georgia, serif; color: var(--muted); }
+  .shero h2 { font: 700 26px/1.15 "Old Standard TT", Georgia, serif; margin: 4px 0 0; }
+  .snav { display: flex; align-items: center; justify-content: center; gap: 14px; margin-top: 10px; }
+  .snav button { flex: 0 0 40px; height: 40px; border-radius: 50%; border: 1px solid var(--orn); background: transparent; color: var(--orn); font-size: 20px; line-height: 1; cursor: pointer; }
+  .snav button:disabled { opacity: .25; }
+  .rng { font: italic 19px/1.3 "Old Standard TT", Georgia, serif; color: var(--red); min-width: 0; }
+  .orn { display: flex; align-items: center; gap: 10px; color: var(--orn); margin: 8px auto 0; max-width: 200px; font-size: 13px; line-height: 1; }
+  .orn::before, .orn::after { content: ''; flex: 1; height: 1px; background: linear-gradient(90deg, transparent, var(--orn)); }
+  .orn::after { background: linear-gradient(90deg, var(--orn), transparent); }
+  .sday { position: relative; background: linear-gradient(180deg, var(--parch1), var(--parch2)); border: 1px solid var(--line); border-radius: 16px;
+    padding: 16px 18px 12px; margin-bottom: 12px; }
+  .sday.red { border-top: 3px solid var(--red); }
+  .sday.today { border-color: var(--orn); box-shadow: 0 0 0 2px color-mix(in srgb, var(--orn) 35%, transparent); }
+  .sday.past { opacity: .5; }
+  .sdh { text-align: center; }
+  .sdw { font: 700 22px/1.15 "Old Standard TT", Georgia, serif; letter-spacing: .01em; }
+  .sday.red .sdw { color: var(--red); }
+  .sdd { font: italic 17px/1.3 "Old Standard TT", Georgia, serif; color: var(--text); margin-top: 2px; }
+  .sdd .os { display: block; font-size: 13px; color: var(--muted); }
+  .stoday { display: inline-block; font: 600 10.5px/1 -apple-system, "Segoe UI", Roboto, Arial, sans-serif; letter-spacing: .08em; text-transform: uppercase;
+    background: var(--red); color: var(--on-red); border-radius: 99px; padding: 4px 9px; margin-bottom: 6px; }
+  .sft { font: 700 italic 18px/1.3 "Old Standard TT", Georgia, serif; color: var(--red); text-align: center; margin: 8px 0 0; }
+  .ssub { font: italic 14px/1.45 "Old Standard TT", Georgia, serif; color: var(--muted); text-align: center; margin: 4px 0 0; }
+  .sit { list-style: none; margin: 0; padding: 0; }
+  .sit li { display: grid; grid-template-columns: 58px 1fr; column-gap: 12px; padding: 8px 0; font: 18px/1.35 "Old Standard TT", Georgia, serif; }
+  .sit li + li { border-top: 1px dashed var(--line); }
+  .sit b { font-weight: 700; font-variant-numeric: tabular-nums; color: var(--muted); }
+  .sit li.lit, .sit li.lit b { color: var(--red); }
+  .sit li.nt { font-style: italic; color: var(--red); font-size: 16.5px; }
+  .sit li.nt b { color: var(--orn); text-align: center; font-weight: 400; }
+  .sit .none { display: block; grid-column: 1 / -1; color: var(--muted); font-style: italic; text-align: center; }
+  /* служба, на яку можна подати записку: торкнутися — розгортається список треб */
+  .sit li.bk { grid-template-columns: 58px 1fr 26px; cursor: pointer; border-radius: 10px; margin: 0 -8px; padding: 8px; }
+  .sit li.bk + li, .sit li + li.bk { border-top-color: transparent; }
+  .sit li.bk:active { background: var(--gold-bg); }
+  .sit .pen { align-self: center; width: 26px; height: 26px; border-radius: 50%; border: 1px solid var(--orn); color: var(--orn);
+    font: 13px/24px -apple-system, "Segoe UI", Roboto, Arial, sans-serif; text-align: center; transition: transform .15s; }
+  .sit li.bk.open { background: var(--gold-bg); }
+  .sit li.bk.open .pen { background: var(--orn); color: var(--parch1); }
+  .sbk { grid-column: 1 / -1; display: none; margin: 8px 0 2px; border-top: 1px solid var(--line); padding-top: 4px;
+    font: 15px/1.3 -apple-system, "Segoe UI", Roboto, Arial, sans-serif; }
+  .sit li.open .sbk { display: block; }
+  .sbk .k2 { font-size: 12px; color: var(--muted); margin: 4px 0 2px; }
+  .sbk button { display: flex; justify-content: space-between; align-items: center; width: 100%; border: none; background: none; color: var(--text);
+    padding: 10px 2px; font: inherit; text-align: left; cursor: pointer; border-bottom: 1px dashed var(--line); }
+  .sbk button:last-child { border-bottom: none; }
+  .sbk button small { color: var(--muted); font-size: 12.5px; }
+  .sbk button::after { content: '›'; color: var(--orn); font-size: 20px; margin-left: 8px; }
+  .sit .cl { grid-column: 2 / -1; color: var(--muted); font: 13px/1.3 -apple-system, "Segoe UI", Roboto, Arial, sans-serif; margin-top: 4px; }
   .note h3 { margin: 0 0 2px; font-size: 17px; }
   .note .meta { font-size: 14px; color: var(--muted); margin: 0 0 8px; }
   .note .nm { font-size: 16px; margin: 0 0 10px; }
@@ -113,6 +176,11 @@
 <div class="wrap">
   <p id="loading" style="text-align:center;color:var(--muted);margin-top:40vh" class="hidden">Завантаження…</p>
   <header>
+    <div class="fs" id="fs" role="group" aria-label="Розмір шрифту">
+      <button type="button" data-z="1" style="font-size:14px" aria-label="Звичайний шрифт">А</button>
+      <button type="button" data-z="1.15" style="font-size:18px" aria-label="Більший шрифт">А</button>
+      <button type="button" data-z="1.3" style="font-size:22px" aria-label="Найбільший шрифт">А</button>
+    </div>
     <div class="cross">☦</div>
     <h1 id="temple">Храм</h1>
     <p>Подати записку</p>
@@ -120,6 +188,7 @@
 
   <nav class="seg" id="seg">
     <button data-v="vForm" class="on">Записка</button>
+    <button data-v="vSched">Розклад</button>
     <button data-v="vPom">Помянник</button>
     <button data-v="vMy">Мої записки<span class="cnt hidden" id="myCnt"></span></button>
   </nav>
@@ -142,6 +211,7 @@
       <div class="dates" id="dates"></div>
       <button class="link hidden" id="more">Показати ще дати</button>
       <p class="dnote" id="dnote"></p>
+      <div id="svcBox" class="hidden"><p class="lbl" style="margin:12px 0 8px">Служба</p><div class="grid" id="svcs"></div></div>
     </div>
 
     <div class="card">
@@ -180,6 +250,19 @@
     <button class="main ghost" id="again" style="margin-top:8px">Подати ще записку</button>
     <p class="hint" style="margin-top:12px">Записку можна змінити до кінця прийому — у розділі «Мої записки».</p>
   </div>
+  </section>
+
+  <section id="vSched" class="hidden">
+    <div class="shero">
+      <div class="k" id="sTemple"></div>
+      <h2>Розклад богослужінь</h2>
+      <div class="orn">✤</div>
+      <div class="snav"><button type="button" id="sPrev" aria-label="Попередній тиждень">‹</button>
+        <div class="rng" id="sRng"></div>
+        <button type="button" id="sNext" aria-label="Наступний тиждень">›</button></div>
+    </div>
+    <div id="sDays"></div>
+    <p class="hint" style="text-align:center">Щоб подати записку на службу, торкніться її — служби з позначкою <span style="color:var(--orn)">✎</span>.<br>Свята й пам’ять святих — за календарем <a href="https://blagovist.info" target="_blank" rel="noopener" style="color:var(--orn)">blagovist.info</a>.</p>
   </section>
 
   <section id="vPom" class="hidden">
@@ -246,6 +329,9 @@ function init() {
     b.onclick = function () { view(b.getAttribute('data-v')); };
   });
   initPom();
+  initFs();
+  $('sPrev').onclick = function () { SW--; renderSched(); };
+  $('sNext').onclick = function () { SW++; renderSched(); };
   updateMyCnt();
   if (!CFG.bankUrl && !CFG.card) $('pays').children[0].classList.add('hidden');
   reset();
@@ -253,7 +339,7 @@ function init() {
 
 function reset() {
   var keepT = S ? S.t : 0;
-  S = { t: keepT, kind: '', date: '', pay: '', showAll: false, busy: false };
+  S = { t: keepT, kind: '', date: '', svc: '', pay: '', showAll: false, busy: false };
   $('names').innerHTML = '';
   addName(); addName(); addName();
   $('pomNote').classList.add('hidden');
@@ -274,7 +360,7 @@ function render() {
     b.onclick = function () { S.t = i; S.date = ''; S.showAll = false; render(); clearErr(); };
     box.appendChild(b);
   });
-  var kinds = treba().kinds;
+  var kinds = treba().other ? othPick() : treba().kinds;
   if (kinds.indexOf(S.kind) < 0) S.kind = kinds.length === 1 ? kinds[0] : '';
   if (S.lastKind && S.kind && S.lastKind !== S.kind) stripKind(S.lastKind, S.kind);
   if (S.kind) S.lastKind = S.kind;
@@ -291,9 +377,36 @@ function render() {
   $('softNote').textContent = noFree
     ? ((CFG.bankUrl || CFG.card) ? 'Пожертву можна внести онлайн або в церковній лавці.' : 'Пожертву можна залишити в церковній лавці.')
     : 'Записку буде прочитано незалежно від пожертви. Якщо є можливість, підтримайте храм.';
-  renderDates(); renderPays(); calc();
+  renderDates(); renderSvcs(); renderPays(); calc();
 }
 
+// «інша служба»: дата та служба цього дня; повертає, які записки на неї приймаються
+function othPick() {
+  var ds = treba().dates, fit = function (x) { return !S.kind || x.kinds.indexOf(S.kind) >= 0; };
+  if (!ds.length) return [];
+  if (!S.date || !ds.some(function (d) { return d.key === S.date; })) {
+    var d0 = ds.filter(function (d) { return d.svcs.some(fit); })[0] || ds[0];
+    S.date = d0.key;
+  }
+  var day = ds.filter(function (d) { return d.key === S.date; })[0];
+  var cur = day.svcs.filter(function (x) { return x.n === S.svc; })[0];
+  if (!cur) cur = day.svcs.filter(fit)[0] || day.svcs[0];
+  S.svc = cur.n;
+  return cur.kinds;
+}
+function renderSvcs() {
+  var box = $('svcBox');
+  if (!treba().other || !S.date) { box.classList.add('hidden'); return; }
+  var day = treba().dates.filter(function (d) { return d.key === S.date; })[0];
+  box.classList.remove('hidden');
+  var g = $('svcs'); g.innerHTML = '';
+  day.svcs.forEach(function (x) {
+    var b = el('button', 'chip' + (x.n === S.svc ? ' on' : ''));
+    b.innerHTML = esc(x.n) + '<small>' + esc(x.t) + ' · ' + esc(x.kinds.map(function (k) { return 'за ' + k; }).join(' і ')) + '</small>';
+    b.onclick = function () { S.svc = x.n; render(); clearErr(); };
+    g.appendChild(b);
+  });
+}
 function renderDates() {
   var ds = treba().dates, box = $('dates'); box.innerHTML = '';
   if (!ds.length) {
@@ -305,7 +418,7 @@ function renderDates() {
   shown.forEach(function (d) {
     var b = el('button', 'chip date' + (d.title ? ' hol' : '') + (d.key === S.date ? ' on' : ''));
     b.innerHTML = '<small>' + (d.today ? 'сьогодні' : esc(d.dow)) + '</small><b>' + d.day + '</b><small>' + esc(d.mon) + '</small>';
-    b.onclick = function () { S.date = d.key; renderDates(); clearErr(); };
+    b.onclick = function () { S.date = d.key; if (treba().other) render(); else renderDates(); clearErr(); };
     box.appendChild(b);
   });
   $('more').classList.toggle('hidden', S.showAll || ds.length <= 8);
@@ -314,6 +427,11 @@ function renderDates() {
   if (cur.title) note += ' · ' + cur.title;
   if (cur.today) note += ' · записки приймаються до ' + cur.today;
   if (treba().sorokoust) note = 'Початок: ' + note + '. Імена поминатимуть на ' + treba().sorokoust + ' найближчих літургіях.';
+  if (treba().other) {
+    note = note.split(' · записки')[0];
+    var sv = (cur.svcs || []).filter(function (x) { return x.n === S.svc; })[0];
+    if (sv) note += ' · ' + sv.n + ' о ' + sv.t + (cur.today ? ' · записки приймаються до початку служби' : '');
+  }
   $('dnote').textContent = note;
 }
 
@@ -382,7 +500,7 @@ function submit() {
   if (!S.date) return err('Оберіть дату');
   if (!names().length) return err('Впишіть хоча б одне ім’я');
   if (!S.pay) return err('Оберіть варіант пожертви');
-  var payload = { treba: treba().id, kind: S.kind, date: S.date, names: names(), pay: S.pay };
+  var payload = { treba: treba().id, kind: S.kind, date: S.date, names: names(), pay: S.pay, svc: treba().other ? S.svc : '' };
   S.busy = true; $('go').disabled = true; $('go').textContent = 'Надсилаємо…';
   var done = function (r) {
     S.busy = false; $('go').disabled = false; $('go').textContent = 'Подати записку';
@@ -399,13 +517,13 @@ function showDone(r, p) {
   rememberNote(r, p);
   $('savePom').textContent = 'Зберегти імена в помянник'; $('savePom').disabled = false;
   $('form').classList.add('hidden'); $('done').classList.remove('hidden');
-  $('doneText').innerHTML = esc(treba().name) + ' · ' + esc(about(p.kind).toLowerCase()) + '<br>' +
+  $('doneText').innerHTML = esc(r.trebaName || treba().name) + ' · ' + esc(about(p.kind).toLowerCase()) + '<br>' +
     (r.sorCount ? 'Початок: ' + esc(r.dateLabel) + '<br>' + r.sorCount + ' літургій' + (r.sorEnd ? ', останнє поминання орієнтовно: ' + esc(r.sorEnd) : '') : esc(r.dateLabel)) +
     '<br>' + r.count + ' ' + plural(r.count, 'ім’я', 'імені', 'імен');
   var box = $('payBox'), h = '';
   if (p.pay === 'online') {
     h += '<p>Пожертва: <b>' + r.sum + ' грн</b></p>';
-    if (CFG.bankUrl) h += '<a class="main" target="_blank" rel="noopener" href="' + esc(CFG.bankUrl) + '">Відкрити банку</a>';
+    if (CFG.bankUrl) h += '<a class="main" target="_blank" rel="noopener" href="' + esc(jarUrl(r.sum, r.id)) + '">Відкрити банку</a>';
     if (CFG.card) {
       h += '<p class="soft" style="margin:14px 0 0">' + (CFG.bankUrl ? 'Або переказом на картку' : 'Переказ на картку') +
         (CFG.cardName ? ' (' + esc(CFG.cardName) + ')' : '') + ':</p>' +
@@ -447,12 +565,107 @@ function kyivNow() {
 function same(a, b) { return a.trim().toLowerCase() === b.trim().toLowerCase(); }
 
 function view(v) {
-  ['vForm', 'vPom', 'vMy'].forEach(function (x) { $(x).classList.toggle('hidden', x !== v); });
+  ['vForm', 'vSched', 'vPom', 'vMy'].forEach(function (x) { $(x).classList.toggle('hidden', x !== v); });
   [].forEach.call(document.querySelectorAll('#seg button'), function (b) { b.classList.toggle('on', b.getAttribute('data-v') === v); });
   if (v === 'vPom') renderPom();
+  if (v === 'vSched') renderSched();
   if (v === 'vMy') renderMy(true);
   if (v === 'vForm') renderPomPick();
   window.scrollTo(0, 0);
+}
+
+/* ── розмір шрифту ── */
+function initFs() {
+  var z = Number(lsGet('zp_zoom', 1)) || 1;
+  var apply = function () {
+    document.querySelector('.wrap').style.zoom = z;
+    [].forEach.call(document.querySelectorAll('#fs button'), function (b) { b.classList.toggle('on', Number(b.getAttribute('data-z')) === z); });
+  };
+  [].forEach.call(document.querySelectorAll('#fs button'), function (b) {
+    b.onclick = function () { z = Number(b.getAttribute('data-z')); lsSet('zp_zoom', z); apply(); };
+  });
+  apply();
+}
+
+/* ── розклад ── */
+var SW = 0;
+var DOWF = ['Неділя', 'Понеділок', 'Вівторок', 'Середа', 'Четвер', 'П’ятниця', 'Субота'];
+var MONG = ['січня', 'лютого', 'березня', 'квітня', 'травня', 'червня', 'липня', 'серпня', 'вересня', 'жовтня', 'листопада', 'грудня'];
+var SVC_OF = { prosk: 'lit', zak: 'lit', sor: 'lit', mol: 'mol', pan: 'pan' };
+function renderSched() {
+  var all = CFG.schedule || [], weeks = [];
+  for (var i = 0; i < all.length; i += 7) weeks.push(all.slice(i, i + 7));
+  SW = Math.max(0, Math.min(SW, weeks.length - 1));
+  var wk = weeks[SW] || [], box = $('sDays'), today = kyivNow().slice(0, 10);
+  $('sTemple').textContent = CFG.temple;
+  $('sPrev').disabled = SW === 0; $('sNext').disabled = SW >= weeks.length - 1;
+  if (wk.length) {
+    var a = wk[0], b = wk[wk.length - 1];
+    $('sRng').textContent = a.day + (a.mon === b.mon ? '' : ' ' + MONG[a.mon]) + ' – ' + b.day + ' ' + MONG[b.mon];
+  }
+  var oth = -1; CFG.trebas.forEach(function (t, ti) { if (t.other) oth = ti; });
+  box.innerHTML = '';
+  wk.forEach(function (d) {
+    var past = d.key < today, isToday = d.key === today;
+    var c = el('div', 'sday' + (isToday ? ' today' : '') + (past ? ' past' : '') + (d.dow === 0 || d.title ? ' red' : ''));
+    var h = '<div class="sdh">' + (isToday ? '<span class="stoday">Сьогодні</span>' : '') +
+      '<div class="sdw">' + DOWF[d.dow] + '</div><div class="sdd">' + d.day + ' ' + MONG[d.mon] +
+      '<span class="os">' + oldStyle(d.key) + ' за ст. ст.</span></div></div>';
+    if (d.title) h += '<div class="sft">' + esc(d.title) + '</div>';
+    if (d.sub) h += '<div class="ssub">' + esc(d.sub) + '</div>';
+    h += '<div class="orn" style="margin:10px auto 4px">❖</div><ul class="sit">';
+    if (!d.items.length) h += '<li><span class="none">Богослужінь немає</span></li>';
+    d.items.forEach(function (it) {
+      var opts = '', closed = false, kinds = '';
+      if (!past) {
+        if (it.type) {
+          CFG.trebas.forEach(function (t, ti) {
+            if (SVC_OF[t.id] !== it.type || !t.dates.some(function (x) { return x.key === d.key; })) return;
+            var k = t.kinds.length > 1 ? 'за здоров’я або за упокій' : 'за ' + t.kinds[0];
+            opts += '<button type="button" data-t="' + ti + '" data-d="' + d.key + '"><span>' + (it.type === 'lit' ? esc(t.name) : 'Подати записку') +
+              '<br><small>' + (t.sorokoust ? '40 літургій, ' : '') + k + '</small></span></button>';
+          });
+          closed = !opts;
+        } else if (it.notes) {
+          var ok = oth >= 0 && CFG.trebas[oth].dates.some(function (x) { return x.key === d.key && x.svcs.some(function (y) { return y.n === it.n; }); });
+          kinds = it.notes === 'z' ? 'за здоров’я' : it.notes === 'u' ? 'за упокій' : 'за здоров’я або за упокій';
+          if (ok) opts = '<button type="button" data-t="' + oth + '" data-d="' + d.key + '" data-s="' + esc(it.n) + '"><span>Подати записку<br><small>' + kinds + '</small></span></button>';
+          closed = !ok;
+        }
+      }
+      h += '<li class="' + (it.type || '') + (it.t ? '' : ' nt') + (opts ? ' bk' : '') + '"><b>' + (it.t ? esc(it.t) : '✦') + '</b><span>' + esc(it.n) + '</span>' +
+        (opts ? '<span class="pen" aria-hidden="true">✎</span><div class="sbk"><div class="k2">Подати записку на цю службу:</div>' + opts + '</div>' : '') +
+        (!opts && closed && isToday ? '<span class="cl">Прийом записок завершено</span>' : '') + '</li>';
+    });
+    h += '</ul>';
+    c.innerHTML = h;
+    box.appendChild(c);
+  });
+  [].forEach.call(box.querySelectorAll('.sbk button'), function (b) {
+    b.onclick = function (e) { e.stopPropagation(); fromSched(Number(b.getAttribute('data-t')), b.getAttribute('data-d'), b.getAttribute('data-s')); };
+  });
+  // торкнулися служби — розгорнули варіанти записок (інші згортаються)
+  [].forEach.call(box.querySelectorAll('li.bk'), function (li) {
+    li.onclick = function () {
+      var was = li.classList.contains('open');
+      [].forEach.call(box.querySelectorAll('li.bk.open'), function (x) { x.classList.remove('open'); });
+      if (!was) li.classList.add('open');
+    };
+  });
+}
+// дата за старим (юліанським) стилем: −13 днів
+function oldStyle(key) {
+  var d = new Date(Date.UTC(+key.slice(0, 4), +key.slice(5, 7) - 1, +key.slice(8, 10)) - 13 * 864e5);
+  return d.getUTCDate() + ' ' + MONG[d.getUTCMonth()];
+}
+// подати записку з розкладу: треба, дата (і служба) вже обрані; «за кого» — сам, якщо варіант один
+function fromSched(ti, key, svc) {
+  S.t = ti; reset();
+  var ds = treba().dates, idx = -1;
+  ds.forEach(function (x, i) { if (x.key === key) idx = i; });
+  if (idx < 0) return;
+  S.date = key; S.svc = svc || ''; S.showAll = idx >= 8;
+  render(); view('vForm');
 }
 
 /* ── помянник ── */
@@ -581,7 +794,7 @@ function updateMyCnt() {
 }
 function rememberNote(r, p) {
   if (!r.token) return;
-  MY.unshift({ id: r.id, token: r.token, trebaId: p.treba, trebaName: treba().name, kind: p.kind,
+  MY.unshift({ id: r.id, token: r.token, trebaId: p.treba, trebaName: r.trebaName || treba().name, kind: p.kind,
     date: r.date, dateLabel: r.dateLabel, names: r.names || p.names, pay: p.pay, sum: r.sum,
     until: r.until, sor: r.sorCount || 0, limit: null });
   saveMy();
@@ -609,11 +822,22 @@ function renderMy(refresh) {
   });
   if (refresh) refreshMy();
 }
+// посилання на банку Monobank: одразу підставляємо суму та коментар із номером записки
+function jarUrl(sum, id) {
+  var u = String(CFG.bankUrl || '');
+  if (!/^https:\/\/send\.monobank\.ua\/jar\//i.test(u)) return u;
+  u = u.split('?')[0].split('#')[0];
+  var q = [];
+  if (Number(sum) > 0) q.push('a=' + Math.round(Number(sum)));
+  if (id) q.push('t=' + encodeURIComponent('Записка ' + id));
+  return q.length ? u + '?' + q.join('&') : u;
+}
 function payText(x) {
   var how = { online: 'онлайн (банка або картка)', cash: 'у церковній лавці', none: 'без пожертви' }[x.pay] || '';
   if (!how) return '';
   if (x.pay === 'none') return 'Без пожертви';
-  return 'Пожертва: ' + how + ' · <b>' + (Number(x.sum) || 0) + ' грн</b>' + (x.pay === 'online' && x.id ? ' · записка ' + esc(x.id) : '');
+  return 'Пожертва: ' + how + ' · <b>' + (Number(x.sum) || 0) + ' грн</b>' + (x.pay === 'online' && x.id ? ' · записка ' + esc(x.id) : '') +
+    (x.pay === 'online' && CFG.bankUrl ? ' · <a target="_blank" rel="noopener" style="color:var(--gold)" href="' + esc(jarUrl(x.sum, x.id)) + '">відкрити банку</a>' : '');
 }
 function refreshMy() {
   // спрашиваем сервер про все записки: время на телефоне может отличаться
