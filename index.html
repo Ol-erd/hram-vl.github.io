@@ -81,6 +81,7 @@
   .pchips { display: flex; flex-wrap: wrap; gap: 6px; }
   .pchip { border: 1px solid var(--line); background: transparent; color: var(--text); border-radius: 99px; padding: 7px 12px; font: inherit; font-size: 15px; cursor: pointer; }
   .pchip.on { background: var(--gold-bg); border-color: var(--gold); }
+  .pkh { flex-basis: 100%; font-size: 13px; color: var(--muted); margin-top: 4px; }
   .pchip.on::before { content: '✓ '; color: var(--gold); }
   .plist { margin: 0 0 10px; padding: 0; list-style: none; }
   .plist li { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--line); font-size: 17px; }
@@ -366,6 +367,7 @@ function render() {
   if (kinds.indexOf(S.kind) < 0) S.kind = kinds.length === 1 ? kinds[0] : '';
   if (S.lastKind && S.kind && S.lastKind !== S.kind) stripKind(S.lastKind, S.kind);
   if (S.kind) S.lastKind = S.kind;
+  S.kinds = kinds;
   var kb = $('kinds'); kb.innerHTML = '';
   kinds.forEach(function (k) {
     var b = el('button', 'chip' + (k === S.kind ? ' on' : ''));
@@ -751,6 +753,7 @@ function stripKind(from, to) {
 }
 function renderPomPick() {
   var box = $('pomPick');
+  if (S && !S.kind) return renderPomBoth();
   if (!S || !S.kind || !POM[pk(S.kind)].length) { box.classList.add('hidden'); return; }
   box.classList.remove('hidden');
   var cur = names(), wrap = $('pomChips'), list = POM[pk(S.kind)]; wrap.innerHTML = '';
@@ -760,6 +763,21 @@ function renderPomPick() {
     var b = el('button', 'pchip' + (on ? ' on' : '')); b.type = 'button'; b.textContent = n;
     b.onclick = function () { togglePomName(n, on); };
     wrap.appendChild(b);
+  });
+}
+// «за кого» ще не обрано (наприклад, Літургія з розкладу): показуємо обидва списки,
+// натиснули ім'я — обрали й «за здоров'я / за упокій»
+function renderPomBoth() {
+  var box = $('pomPick'), wrap = $('pomChips'), ks = (S.kinds || []).filter(function (k) { return POM[pk(k)].length; });
+  if (!ks.length) { box.classList.add('hidden'); return; }
+  box.classList.remove('hidden'); wrap.innerHTML = '';
+  ks.forEach(function (k) {
+    var h = el('div', 'pkh'); h.textContent = about(k) + ':'; wrap.appendChild(h);
+    POM[pk(k)].forEach(function (n) {
+      var b = el('button', 'pchip'); b.type = 'button'; b.textContent = n;
+      b.onclick = function () { S.kind = k; render(); togglePomName(n, false); };
+      wrap.appendChild(b);
+    });
   });
 }
 function togglePomName(n, on) {

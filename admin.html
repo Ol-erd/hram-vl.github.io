@@ -34,6 +34,7 @@
   .sub { color: var(--muted); font-size: 14px; margin: 0 0 14px; }
   .card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 14px; margin-bottom: 12px; }
   .lbl { font-size: 13px; color: var(--muted); margin: 0 0 8px; }
+  .link { display: block; background: none; border: 0; padding: 10px 0 2px; color: var(--red); text-decoration: underline; cursor: pointer; text-align: left; }
   button { font: inherit; color: inherit; }
   .btn { min-height: 46px; padding: 8px 14px; border-radius: 10px; border: 1px solid var(--line); background: var(--card); cursor: pointer; }
   .btn.on { background: var(--gold-bg); border-color: var(--gold); }
@@ -1187,6 +1188,8 @@ function tgLoad() {
   $('tgState').innerHTML = '<p class="legend">Завантаження…</p>';
   call('clergyTg', [A.pin, A.rpin], tgDraw);
 }
+/* адреса скрипта (…/exec) — на неї Telegram надсилатиме повідомлення боту */
+function apiUrl() { return typeof API_URL !== 'undefined' ? API_URL : ''; }
 function tgDraw(r) {
   var box = $('tgState');
   if (!r.ok) { box.innerHTML = '<p class="err">' + esc(r.error || 'Помилка') + '</p>'; return; }
@@ -1199,6 +1202,14 @@ function tgDraw(r) {
       (r.on && !r.trigger ? '<p class="warn" style="margin-top:8px">Автоматична перевірка ще не запущена. Відкрийте Apps Script, оберіть функцію <b>setupTelegram</b> і натисніть ▶ «Виконати» (один раз).</p>' : '') +
       '<div class="grid2" style="margin-top:10px"><button class="btn" id="tgTest">Надіслати тест</button><button class="btn" id="tgWk">Розклад зараз</button></div>' +
       '<div class="grid2" style="margin-top:8px"><button class="btn" id="tgRp">Звіт зараз</button><button class="btn" id="tgRe">Змінити групу</button></div>' +
+      '<div style="margin-top:14px;border-top:1px solid var(--line);padding-top:12px">' +
+      '<p class="lbl" style="margin:0 0 6px">🤖 Керування через бота</p>' +
+      '<label class="chk"><input type="checkbox" id="tgBot"' + (r.botOn ? ' checked' : '') + '><span>Настоятель може змінювати розклад, пожертви та інші налаштування в особистому чаті з ботом</span></label>' +
+      (r.botOn ? '<p class="sub" style="margin:8px 0 0">Відкрийте ' + (r.bot ? '<a href="https://t.me/' + esc(r.bot) + '" target="_blank" rel="noopener">@' + esc(r.bot) + '</a>' : 'бота') +
+        ', натисніть «Старт» і надішліть PIN настоятеля — бот одразу видалить це повідомлення.</p>' +
+        (r.admins && r.admins.length ? '<p class="st" style="margin-top:8px">Підключено: <b>' + r.admins.map(esc).join(', ') + '</b></p>' +
+          '<button class="link" id="tgBotClr" style="font-size:14px">Відключити всі телефони</button>' : '') : '') +
+      '</div>' +
       '<button class="link" id="tgForget" style="color:var(--muted);font-size:14px">Відключити бота</button>';
   } else {
     h += '<ol><li>У Telegram відкрийте <b>@BotFather</b> → <b>/newbot</b> → придумайте назву. Він надішле <b>токен</b>.</li>' +
@@ -1212,7 +1223,7 @@ function tgDraw(r) {
   var err = function (t) { $('tgErr').textContent = t || ''; $('tgOk').textContent = ''; };
   if ($('tgFind')) $('tgFind').onclick = function () {
     err(''); $('tgFind').disabled = true; $('tgFind').textContent = 'Шукаємо…';
-    call('clergyTgFind', [A.pin, A.rpin, $('tgToken').value], function (f) {
+    call('clergyTgFind', [A.pin, A.rpin, $('tgToken').value, apiUrl()], function (f) {
       $('tgFind').disabled = false; $('tgFind').textContent = 'Знайти групу';
       if (!f.ok) return err(f.error);
       if (!f.chats.length) return err('Бот @' + f.bot + ' ще не бачить жодної групи. Додайте його в групу (або видаліть і додайте знову), напишіть там будь-що й натисніть ще раз.');
@@ -1242,6 +1253,16 @@ function tgDraw(r) {
       if (!t.ok) return err(t.error);
       $('tgOk').textContent = 'Розклад на наступний тиждень надіслано.';
     });
+  };
+  if ($('tgBot')) $('tgBot').onchange = function () {
+    err(''); $('tgBot').disabled = true;
+    call('clergyTgBot', [A.pin, A.rpin, { on: $('tgBot').checked, api: apiUrl() }], function (t) {
+      if (!t.ok) { $('tgBot').disabled = false; $('tgBot').checked = !$('tgBot').checked; return err(t.error); }
+      tgDraw(t);
+    });
+  };
+  if ($('tgBotClr')) $('tgBotClr').onclick = function () {
+    if (confirm('Відключити всі телефони від бота? Щоб знову керувати, треба буде надіслати боту PIN настоятеля.')) call('clergyTgBot', [A.pin, A.rpin, { clear: true }], tgDraw);
   };
   if ($('tgRe')) $('tgRe').onclick = function () { tgDraw({ ok: true, hasToken: true, chat: '' }); };
   if ($('tgForget')) $('tgForget').onclick = function () {
