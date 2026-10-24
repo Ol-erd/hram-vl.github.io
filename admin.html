@@ -890,7 +890,7 @@ function printWeek(add) {
       var red = d.dow === 0 || d.title;
       var h = '<tr class="' + (red ? 'red' : '') + '"><td class="dd"><b>' + DOWP[d.dow] + '</b><span>' + d.day + ' ' + MONP[d.mon] + '</span><small>' + oldStyleP(d.key) + ' за ст. ст.</small></td><td>';
       if (d.title) h += '<div class="ft">' + esc(d.title) + '</div>';
-      if (d.sub) h += '<div class="sb">' + esc(d.sub) + '</div>';
+      if (d.sub && d.subOwn) h += '<div class="sb">' + esc(d.sub) + '</div>'; // пам’ять святих із календаря — лише на сайті, щоб аркуш був на 1 сторінку
       if (!d.items.length) h += '<div class="none">Богослужінь немає</div>';
       d.items.forEach(function (it) { h += '<div class="rw ' + (it.type || '') + (it.t ? '' : ' nt') + '"><b>' + (it.t ? esc(it.t) : '✦') + '</b><span>' + esc(it.n) + '</span></div>'; });
       return h + '</td></tr>';
